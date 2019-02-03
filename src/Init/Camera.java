@@ -10,18 +10,18 @@ public class Camera {
 
 
     public float getX() {
-        return x;
+        return x+Window.gameWidth/2;
     }
 
     public void setX(float x) {
-        Camera.x = x;
+        Camera.x = x-Window.gameWidth/2;
     }
 
     public float getY() {
-        return y;
+        return y-Window.gameHeight/2;
     }
 
     public void setY(float y) {
-        Camera.y = y;
+        Camera.y = y+Window.gameHeight/2;
     }
 }
