@@ -1,19 +1,43 @@
 package Init;
 
+import Objects.GameObjects.Player.Player;
+import Objects.GameWorld.Systems;
+import Objects.Utility.ObjectMap;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class Game extends JComponent {
-    static Camera camera;
+    public ObjectMap<CameraID, Camera> cameraMap;
 
-    private static boolean isRunning = true;
+    private boolean isRunning = true;
     private Thread thread;
 
-    Game() {
-        camera = new Camera(0, 0);
+    public Window window;
+    private static Game game;
 
+    //testing
+    private Player player;
+
+    private Game() {
+        cameraMap = new ObjectMap<>();
+        cameraMap.put(CameraID.game, new Camera(0, 0, 1, Window.gameWidth, Window.gameHeight));
+        cameraMap.put(CameraID.screen, new Camera(0, 0, 1, Window.gameWidth, Window.gameHeight));
+
+        player = new Player(0, 0, Window.gameWidth/20, Window.gameWidth/20);
         thread = new Thread(this::start);
         thread.start();
+    }
+
+    public static Game getInstance() {
+        if(game == null) {
+            game = new Game();
+        }
+        return game;
+    }
+
+    public void giveWindow(Window window){
+        this.window = window;
     }
 
     private void start() {
@@ -40,7 +64,7 @@ public class Game extends JComponent {
     }
 
     private void update() {
-
+        player.update();
     }
 
     private void stop() {
@@ -60,9 +84,7 @@ public class Game extends JComponent {
 
         ////////DRAWING AREA////////
 
-        g2d.translate(-camera.getX(), -camera.getY());
-
-        g2d.translate(0, 0);
+        player.render(g2d);
 
         ////////MENU DRAWING////////
         g2d.dispose();

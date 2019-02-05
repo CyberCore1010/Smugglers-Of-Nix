@@ -11,7 +11,7 @@ public class Window {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
     public static final int gameWidth = (int)screenSize.getWidth();
-    public static final int gameHeight = (int)screenSize.getHeight()-50;
+    public static final int gameHeight = (int)screenSize.getHeight();
 
     public Point mousePoint = new Point(0, 0);
 
@@ -23,8 +23,8 @@ public class Window {
         frame.getContentPane().setBackground(Color.black);
         frame.setSize(gameWidth, gameHeight);
 
-        /*frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setUndecorated(true);*/
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         frame.addKeyListener(new KeyHandler());
@@ -32,8 +32,8 @@ public class Window {
             @Override
             public void mouseMoved(MouseEvent e) {
                 Point temp = e.getPoint();
-                mousePoint.x = temp.x+(int)Game.camera.getX();
-                mousePoint.y = temp.y+(int)Game.camera.getY();
+                mousePoint.x = temp.x+(int)Game.getInstance().cameraMap.get(CameraID.game).getX();
+                mousePoint.y = temp.y+(int)Game.getInstance().cameraMap.get(CameraID.game).getY();
             }
         });
     }

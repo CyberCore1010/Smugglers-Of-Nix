@@ -1,27 +1,66 @@
 package Init;
 
+import java.awt.geom.AffineTransform;
+
 public class Camera {
-    private static float x, y;
+    private AffineTransform transform;
+    private double x,y;
+    private double zoom;
+    private double width,height;
 
-    Camera(float x, float y) {
-        Camera.x = x;
-        Camera.y = y;
+    public Camera(double x, double y, double zoom, double width, double height) {
+        transform = new AffineTransform();
+        transform.setToTranslation(width/2,height/2);
+        transform.translate(-x,-y);
+        transform.scale(zoom,zoom);
+        this.x = x;
+        this.y = y;
+        this.zoom = zoom;
+        this.width = width;
+        this.height = height;
     }
 
-
-    public float getX() {
-        return x+Window.gameWidth/2;
+    /**
+     * @return - returns the x value of the camera
+     */
+    public double getX() {
+        return x;
     }
 
-    public void setX(float x) {
-        Camera.x = x-Window.gameWidth/2;
+    /**
+     * @param x - takes the x position passed in and sets the camera's x to it
+     */
+    public void setX(double x) {
+        this.x = x;
     }
 
-    public float getY() {
-        return y-Window.gameHeight/2;
+    /**
+     * @return - returns the x value of the camera
+     */
+    public double getY() {
+        return y;
     }
 
-    public void setY(float y) {
-        Camera.y = y+Window.gameHeight/2;
+    /**
+     * @param y - takes the y position passed in and sets the camera's y to it
+     */
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public void setZoom(double zoom){
+        this.zoom = zoom;
+    }
+
+    public double getZoom(){
+        return zoom;
+    }
+
+    public AffineTransform getTransform(){
+        transform.setToScale(0,0);
+        transform.setToTranslation(width/2,height/2);
+        transform.scale(zoom,zoom);
+        transform.translate(-x,-y);
+        return transform;
     }
 }

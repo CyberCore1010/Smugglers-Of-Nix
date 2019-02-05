@@ -7,17 +7,17 @@ import java.util.Map;
 
 public class KeyHandler extends KeyAdapter {
 
-    private static Map<String, Boolean> keyMap;
+    private static Map<Keys, Boolean> keyMap;
 
     public KeyHandler() {
         keyMap = new HashMap<>();
-        keyMap.put("W", false);
-        keyMap.put("A", false);
-        keyMap.put("S", false);
-        keyMap.put("D", false);
+        keyMap.put(Keys.W, false);
+        keyMap.put(Keys.A, false);
+        keyMap.put(Keys.S, false);
+        keyMap.put(Keys.D, false);
     }
 
-    public static boolean isKeyPressed(String key) {
+    public static boolean isKeyPressed(Keys key) {
         if(keyMap != null) {
             return keyMap.get(key);
         } else {
@@ -31,16 +31,16 @@ public class KeyHandler extends KeyAdapter {
         int key = e.getKeyCode();
 
         if(key == KeyEvent.VK_W) {
-            keyMap.replace("W", true);
+            keyMap.replace(Keys.W, true);
         }
         if(key == KeyEvent.VK_A) {
-            keyMap.replace("A", true);
+            keyMap.replace(Keys.A, true);
         }
         if(key == KeyEvent.VK_S) {
-            keyMap.replace("S", true);
+            keyMap.replace(Keys.S, true);
         }
         if(key == KeyEvent.VK_D) {
-            keyMap.replace("D", true);
+            keyMap.replace(Keys.D, true);
         }
     }
 
@@ -49,16 +49,16 @@ public class KeyHandler extends KeyAdapter {
         int key = e.getKeyCode();
 
         if(key == KeyEvent.VK_W) {
-            keyMap.replace("W", false);
+            keyMap.replace(Keys.W, false);
         }
         if(key == KeyEvent.VK_A) {
-            keyMap.replace("A", false);
+            keyMap.replace(Keys.A, false);
         }
         if(key == KeyEvent.VK_S) {
-            keyMap.replace("S", false);
+            keyMap.replace(Keys.S, false);
         }
         if(key == KeyEvent.VK_D) {
-            keyMap.replace("D", false);
+            keyMap.replace(Keys.D, false);
         }
     }
 }

@@ -9,7 +9,8 @@ public class main {
     public static void main(String[] args) {
         System.setProperty("sun.java2d.opengl", "true");
 
-        Game game = new Game();
-        new Window(game, "Smugglers Of Nix");
+        Game game = Game.getInstance();
+        Window window = new Window(game, "Smugglers Of Nix");
+        game.giveWindow(window);
     }
 }
