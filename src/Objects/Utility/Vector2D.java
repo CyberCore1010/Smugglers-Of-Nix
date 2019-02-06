@@ -1,6 +1,7 @@
 package Objects.Utility;
 
-import java.util.Map;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 // mutable 2D vectors
 public final class Vector2D {
@@ -50,7 +51,7 @@ public final class Vector2D {
 
     //  magnitude (= "length") of this vector
     public double mag() {
-        return (x*x)+(y*y);
+        return sqrt(pow(x, 2)+pow(y, 2));
     }
 
     // angle between vector and horizontal axis in radians in range [-PI,PI]
@@ -61,45 +62,49 @@ public final class Vector2D {
 
     // angle between this vector and another vector in range [-PI,PI]
     public double angle(Vector2D other) {
-        return Math.atan2(y, x) - Math.atan2(other.y, other.x);
+        return Math.atan2(other.y-y, other.x-x);
     }
 
     // add argument vector
     public Vector2D add(Vector2D v) {
-        x += v.x;
-        y += v.y;
-        return this;
+        double newX = x + v.x;
+        double newY = y + v.y;
+        return new Vector2D(newX, newY);
     }
 
     // add values to coordinates
     public Vector2D add(double x, double y) {
-        this.x = this.x+x;
-        this.y = this.y+y;
-        return this;
+        double newX = this.x + x;
+        double newY = this.y + y;
+        return new Vector2D(newX, newY);
     }
 
-    // weighted add - surprisingly useful todo
+    // weighted add - surprisingly useful
     public Vector2D addScaled(Vector2D v, double fac) {
-        return this;
+        double otherX = v.x * fac;
+        double otherY = v.y * fac;
+        return this.add(otherX, otherY);
     }
 
     // subtract argument vector
     public Vector2D subtract(Vector2D v) {
-        this.x -= v.x;
-        this.y -= v.y;
-        return this;
+        double newX = this.x - v.x;
+        double newY = this.y - v.y;
+        return new Vector2D(newX, newY);
     }
 
     // subtract values from coordinates
     public Vector2D subtract(double x, double y) {
-        this.x -= x;
-        this.y -= y;
-        return this;
+        double newX = this.x - x;
+        double newY = this.y - y;
+        return new Vector2D(newX, newY);
     }
 
-    // multiply with factor todo
-    public Vector2D mult(double fac) {
-        return this;
+    // multiply with factor "multiply"
+    public Vector2D scale(double fac) {
+        double newX = this.x*fac;
+        double newY = this.y*fac;
+        return new Vector2D(newX, newY);
     }
 
     // rotate by angle given in radians todo
@@ -107,22 +112,33 @@ public final class Vector2D {
         return this;
     }
 
-    // "dot product" ("scalar product") with argument vector todo
+    // "dot product" ("scalar product") with argument vector
     public double dot(Vector2D v) {
-        return 0;
+        return (x*v.x)+(y*v.y);
     }
 
-    // distance to argument vector todo
+    // distance to argument vector
     public double dist(Vector2D v) {
-        return 0;
+        double newX = v.x - x;
+        double newY = v.y - y;
+        return sqrt(pow(newX, 2) + pow(newY,2));
     }
 
-    // normalise vector so that magnitude becomes 1 todo
-    public Vector2D normalise() {
-        return this;
+    public Vector2D getDirectionVector(Vector2D v) {
+        double newX = v.x - x;
+        double newY = v.y - y;
+        return new Vector2D(newX, newY);
     }
 
-    // wrap-around operation, assumes w> 0 and h>0
+    // normalise vector so that magnitude becomes 1 "normalise"
+    public Vector2D getUnitVector() {
+        double distance = this.mag();
+        double newX = x/distance;
+        double newY = y/distance;
+        return new Vector2D(newX, newY);
+    }
+
+    // wrap-around operation, assumes w > 0 and h > 0
     // remember to manage negative values of the coordinates todo
     public Vector2D wrap(double w, double h) {
         return this;
@@ -132,5 +148,4 @@ public final class Vector2D {
     public static Vector2D polar(double angle, double mag) {
         return new Vector2D(mag*Math.cos(angle), mag*Math.sin(angle));
     }
-
 }
