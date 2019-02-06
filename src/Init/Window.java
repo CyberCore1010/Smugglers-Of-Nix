@@ -1,6 +1,7 @@
 package Init;
 
 import Objects.Utility.KeyHandler;
+import Objects.Utility.Maths.Vector2D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +14,7 @@ public class Window {
     public static final int gameWidth = (int)screenSize.getWidth();
     public static final int gameHeight = (int)screenSize.getHeight();
 
-    public Point mousePoint = new Point(0, 0);
+    public static Vector2D mousePoint = new Vector2D(0, 0);
 
     public Window(Component comp, String title) {
         JFrame frame = new JFrame(title);
@@ -23,7 +24,7 @@ public class Window {
         frame.getContentPane().setBackground(Color.black);
         frame.setSize(gameWidth, gameHeight);
 
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));

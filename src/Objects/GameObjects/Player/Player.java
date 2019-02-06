@@ -2,23 +2,27 @@ package Objects.GameObjects.Player;
 
 import Init.CameraID;
 import Init.Game;
+import Init.Window;
 import Objects.GameObjects.Drawable;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.Player.Components.*;
 import Objects.GameObjects.Player.Components.Component;
 import Objects.GameWorld.SystemID;
 import Objects.Utility.BufferedImageLoader;
+import Objects.Utility.Maths.Maths;
 import Objects.Utility.ObjectList;
 import Objects.Utility.ObjectMap;
-import Objects.Utility.Vector2D;
-import javafx.util.Pair;
+import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class Player extends GameObject {
     private Vector2D position;
     private Vector2D midPos;
+    private Vector2D directionVector;
+    private Vector2D directionUnitVector;
     private float width, height;
 
     private BufferedImageLoader bufferedImageLoader;
@@ -33,6 +37,8 @@ public class Player extends GameObject {
     public Player(float x, float y, float width, float height) {
         position = new Vector2D(x, y);
         midPos = new Vector2D(x+(width/2), y+height/2);
+        directionVector = new Vector2D(0.01, 0.01);
+        directionUnitVector = new Vector2D(0.01, 0.01);
         this.width = width;
         this.height = height;
 
@@ -72,6 +78,13 @@ public class Player extends GameObject {
     public void update() {
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
+
+        Vector2D mouseVector = new Vector2D(Window.mousePoint.x, Window.mousePoint.y);
+
+        Vector2D lerped = Maths.lerp(directionVector, mouseVector,0.05);
+
+        directionVector = directionVector.add(lerped);
+
         if(weaponOutTime < 20) {
             weaponOutTime++;
         } else {
@@ -89,7 +102,12 @@ public class Player extends GameObject {
 
     @Override
     public void render(Graphics2D g2d) {
-        Drawable drawable = (g) -> g.drawImage(sprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+        Drawable drawable = (g) -> {
+            AffineTransform newTransform = g.getTransform();
+            newTransform.rotate(directionVector.x-midPos.x, directionVector.y-midPos.y, midPos.x, midPos.y);
+            g.setTransform(newTransform);
+            g.drawImage(sprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+        };
 
         renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
     }

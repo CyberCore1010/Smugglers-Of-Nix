@@ -24,7 +24,7 @@ public class Camera {
      * @return - returns the x value of the camera
      */
     public double getX() {
-        return x;
+        return x-width/2;
     }
 
     /**
@@ -38,7 +38,7 @@ public class Camera {
      * @return - returns the x value of the camera
      */
     public double getY() {
-        return y;
+        return y-height/2;
     }
 
     /**

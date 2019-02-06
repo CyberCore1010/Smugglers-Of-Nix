@@ -1,4 +1,4 @@
-package Objects.Utility;
+package Objects.Utility.Maths;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -41,7 +41,7 @@ public final class Vector2D {
 
     // compare for equality (note Object type argument)
     public boolean equals(Object o) {
-        return this.equals(o);
+        return this == o;
     }
 
     // String for displaying vector as text
