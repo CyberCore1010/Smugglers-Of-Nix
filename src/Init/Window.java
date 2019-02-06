@@ -25,7 +25,7 @@ public class Window {
         frame.setSize(gameWidth, gameHeight);
 
         //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setUndecorated(true);
+        //frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         frame.addKeyListener(new KeyHandler());

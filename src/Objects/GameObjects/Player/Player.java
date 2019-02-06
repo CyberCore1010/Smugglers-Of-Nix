@@ -80,10 +80,8 @@ public class Player extends GameObject {
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
         Vector2D mouseVector = new Vector2D(Window.mousePoint.x, Window.mousePoint.y);
+        directionVector = Maths.lerp(directionVector, mouseVector,0.05);
 
-        Vector2D lerped = Maths.lerp(directionVector, mouseVector,0.05);
-
-        directionVector = directionVector.add(lerped);
 
         if(weaponOutTime < 20) {
             weaponOutTime++;

@@ -5,7 +5,11 @@ public class Maths {
         double diffX = ((targetPos.x-currentPos.x)*speedPercent);
         double diffY = ((targetPos.y-currentPos.y)*speedPercent);
 
-        return new Vector2D(diffX, diffY);
+        return new Vector2D(currentPos.x+diffX, currentPos.y+diffY);
+    }
+
+    public static double lerp(double currentValue, double targetValue, double speedPercent) {
+        return (targetValue-currentValue)*speedPercent;
     }
 
     public static double clamped(double lowerBounds, double upperBounds, double value) {
