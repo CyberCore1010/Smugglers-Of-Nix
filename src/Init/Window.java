@@ -9,12 +9,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class Window {
+    private static Window instance;
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
     public static final int gameWidth = (int)screenSize.getWidth();
     public static final int gameHeight = (int)screenSize.getHeight();
 
-    public static Vector2D mousePoint = new Vector2D(0, 0);
+    private KeyHandler keyHandler;
+    public Vector2D mousePoint = new Vector2D(0, 0);
 
     public Window(Component comp, String title) {
         JFrame frame = new JFrame(title);
@@ -28,7 +30,8 @@ public class Window {
         frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        frame.addKeyListener(new KeyHandler());
+        keyHandler = new KeyHandler();
+        frame.addKeyListener(keyHandler);
         frame.addMouseMotionListener(new MouseAdapter() {
                 @Override
                 public void mouseMoved(MouseEvent e) {
@@ -37,5 +40,10 @@ public class Window {
                 mousePoint.y = temp.y+(int)Game.getInstance().cameraMap.get(CameraID.game).getY();
                 }
         });
+        instance = this;
+    }
+
+    public static Window getInstance() {
+        return instance;
     }
 }

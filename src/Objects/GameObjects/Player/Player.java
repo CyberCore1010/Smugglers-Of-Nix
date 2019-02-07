@@ -8,10 +8,8 @@ import Objects.GameObjects.GameObject;
 import Objects.GameObjects.Player.Components.*;
 import Objects.GameObjects.Player.Components.Component;
 import Objects.GameWorld.SystemID;
-import Objects.Utility.BufferedImageLoader;
+import Objects.Utility.*;
 import Objects.Utility.Maths.Maths;
-import Objects.Utility.ObjectList;
-import Objects.Utility.ObjectMap;
 import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
@@ -24,6 +22,8 @@ public class Player extends GameObject {
     private Vector2D directionVector;
     private Vector2D directionUnitVector;
     private float width, height;
+
+    private KeyHandler keyHandler;
 
     private BufferedImageLoader bufferedImageLoader;
     private ObjectList<BufferedImage> sprites;
@@ -41,6 +41,8 @@ public class Player extends GameObject {
         directionUnitVector = new Vector2D(0.01, 0.01);
         this.width = width;
         this.height = height;
+
+        keyHandler = Window.getInstance().keyHandler;
 
         bufferedImageLoader = new BufferedImageLoader();
         BufferedImage spriteSheet = bufferedImageLoader.loadImage("/PlayerShip/spriteSheet.png");
@@ -79,24 +81,13 @@ public class Player extends GameObject {
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
-        Vector2D mouseVector = new Vector2D(Window.mousePoint.x, Window.mousePoint.y);
+        Vector2D mouseVector = new Vector2D(Window.getInstance().mousePoint.x, Window.getInstance().mousePoint.y);
         directionVector = Maths.lerp(directionVector, mouseVector,0.05);
 
-        //Derive and derive and forward is opposite back unit vector
-
-        if(weaponOutTime < 20) {
-            weaponOutTime++;
-        } else {
-            weaponOutTime = 0;
-            spriteIndex = spriteIndex+1;
-            if(spriteIndex >= sprites.size()-1) {
-                if(spriteIndex == sprites.size()) {
-                    spriteIndex = sprites.size()-2;
-                } else {
-                    spriteIndex = sprites.size()-1;
-                }
-            }
+        if(KeyHandler.isKeyPressed(Keys.W)) {
+            //Derive and derive and forward is opposite back unit vector
         }
+
     }
 
     @Override
