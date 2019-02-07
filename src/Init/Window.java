@@ -24,18 +24,18 @@ public class Window {
         frame.getContentPane().setBackground(Color.black);
         frame.setSize(gameWidth, gameHeight);
 
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         frame.addKeyListener(new KeyHandler());
         frame.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
+                @Override
+                public void mouseMoved(MouseEvent e) {
                 Point temp = e.getPoint();
                 mousePoint.x = temp.x+(int)Game.getInstance().cameraMap.get(CameraID.game).getX();
                 mousePoint.y = temp.y+(int)Game.getInstance().cameraMap.get(CameraID.game).getY();
-            }
+                }
         });
     }
 }

@@ -82,6 +82,8 @@ public class Player extends GameObject {
         Vector2D mouseVector = new Vector2D(Window.mousePoint.x, Window.mousePoint.y);
         directionVector = Maths.lerp(directionVector, mouseVector,0.05);
 
+        //Derive and derive and forward is opposite back unit vector
+
         if(weaponOutTime < 20) {
             weaponOutTime++;
         } else {
