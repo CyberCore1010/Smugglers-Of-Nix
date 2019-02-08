@@ -15,8 +15,7 @@ public class Window {
     public static final int gameWidth = (int)screenSize.getWidth();
     public static final int gameHeight = (int)screenSize.getHeight();
 
-    private KeyHandler keyHandler;
-    public static Vector2D mousePoint = new Vector2D(0, 0);
+    public Vector2D mousePoint = new Vector2D(0, 0);
 
     public Window(Component comp, String title) {
         instance = this;
@@ -31,8 +30,7 @@ public class Window {
         frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        keyHandler = new KeyHandler();
-        frame.addKeyListener(keyHandler);
+        frame.addKeyListener(new KeyHandler());
         frame.addMouseMotionListener(new MouseAdapter() {
                 @Override
                 public void mouseMoved(MouseEvent e) {

@@ -79,7 +79,7 @@ public class Player extends GameObject {
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
-        Vector2D mouseVector = new Vector2D(Window.mousePoint.x, Window.mousePoint.y);
+        Vector2D mouseVector = new Vector2D(Window.getInstance().mousePoint.x, Window.getInstance().mousePoint.y);
         directionVector = Maths.lerp(directionVector, mouseVector,0.05);
 
         if(KeyHandler.isKeyPressed(Keys.W)) {
