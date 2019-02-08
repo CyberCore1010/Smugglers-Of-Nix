@@ -42,8 +42,6 @@ public class Player extends GameObject {
         this.width = width;
         this.height = height;
 
-        keyHandler = Window.getInstance().keyHandler;
-
         bufferedImageLoader = new BufferedImageLoader();
         BufferedImage spriteSheet = bufferedImageLoader.loadImage("/PlayerShip/spriteSheet.png");
         sprites = new ObjectList<>();
@@ -81,13 +79,12 @@ public class Player extends GameObject {
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
-        Vector2D mouseVector = new Vector2D(Window.getInstance().mousePoint.x, Window.getInstance().mousePoint.y);
+        Vector2D mouseVector = new Vector2D(Window.mousePoint.x, Window.mousePoint.y);
         directionVector = Maths.lerp(directionVector, mouseVector,0.05);
 
         if(KeyHandler.isKeyPressed(Keys.W)) {
             //Derive and derive and forward is opposite back unit vector
         }
-
     }
 
     @Override

@@ -16,9 +16,10 @@ public class Window {
     public static final int gameHeight = (int)screenSize.getHeight();
 
     private KeyHandler keyHandler;
-    public Vector2D mousePoint = new Vector2D(0, 0);
+    public static Vector2D mousePoint = new Vector2D(0, 0);
 
     public Window(Component comp, String title) {
+        instance = this;
         JFrame frame = new JFrame(title);
         frame.setLocation((int)((screenSize.getWidth()/2)-(gameWidth/2)), (int)((screenSize.getHeight()/2)-(gameHeight/2))-20);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -26,7 +27,7 @@ public class Window {
         frame.getContentPane().setBackground(Color.black);
         frame.setSize(gameWidth, gameHeight);
 
-        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
