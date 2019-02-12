@@ -5,13 +5,13 @@ public class Shield extends Component {
     public Shield(Level level) {
         switch(level) {
             case basic:
-                stat = 2;
+                stat[0] = 2;
                 break;
             case advanced:
-                stat = 5;
+                stat[0] = 5;
                 break;
             case elite:
-                stat = 10;
+                stat[0] = 10;
                 break;
         }
     }

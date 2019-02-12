@@ -9,7 +9,7 @@ public class Maths {
     }
 
     public static double lerp(double currentValue, double targetValue, double speedPercent) {
-        return (targetValue-currentValue)*speedPercent;
+        return currentValue+((targetValue-currentValue)*speedPercent);
     }
 
     public static double clamped(double lowerBounds, double upperBounds, double value) {

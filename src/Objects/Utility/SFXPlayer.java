@@ -1,0 +1,49 @@
+package Objects.Utility;
+
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import java.io.File;
+
+public class SFXPlayer {
+    Clip clip;
+    boolean looping;
+
+    public SFXPlayer(String sound, boolean looping) {
+        try {
+            this.looping = looping;
+            AudioInputStream temp = AudioSystem.getAudioInputStream(new File(sound).getAbsoluteFile());
+            clip = AudioSystem.getClip();
+            clip.open(temp);
+        } catch (Exception ex) {
+            System.out.println("Error with playing sound.");
+            ex.printStackTrace();
+        }
+    }
+
+    public void setVolume(float gain) {
+        ((FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN)).setValue(gain);
+    }
+
+    public void play() {
+        if(looping) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        } else {
+            clip.setFramePosition(0);
+            clip.start();
+        }
+    }
+
+    public void stop() {
+        clip.stop();
+    }
+
+    public Clip getClip() {
+        return clip;
+    }
+}

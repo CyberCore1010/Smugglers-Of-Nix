@@ -14,21 +14,37 @@ import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Player extends GameObject {
     private Vector2D position;
     private Vector2D midPos;
-    private Vector2D directionVector;
     private Vector2D directionUnitVector;
+
+    private boolean moving = true;
+    private Vector2D currentMovementVector;
+    private Vector2D targetMovementVector;
+
     private float width, height;
+    private float rotation = 1;
+    private boolean turning;
 
-    private KeyHandler keyHandler;
-
-    private BufferedImageLoader bufferedImageLoader;
-    private ObjectList<BufferedImage> sprites;
+    private ObjectList<BufferedImage> playerSprites;
+    private ObjectList<BufferedImage> engineSprites;
     private int spriteIndex = 0;
     private int weaponOutTime = 0;
+    private boolean enginesOn = false;
+    private int engineIndex = 0;
+    private int engineTime = 0;
+
+    private BufferedImage stars;
+
+    private SFXPlayer speedUp;
+    private SFXPlayer speedDown;
+    private SFXPlayer thrust;
+    private SFXPlayer turn;
 
     private SystemID currentLocation;
 
@@ -37,19 +53,38 @@ public class Player extends GameObject {
     public Player(float x, float y, float width, float height) {
         position = new Vector2D(x, y);
         midPos = new Vector2D(x+(width/2), y+height/2);
-        directionVector = new Vector2D(0.01, 0.01);
         directionUnitVector = new Vector2D(0.01, 0.01);
+
+        currentMovementVector = new Vector2D(0, 0);
+        targetMovementVector = new Vector2D(0, 0);
         this.width = width;
         this.height = height;
 
-        bufferedImageLoader = new BufferedImageLoader();
-        BufferedImage spriteSheet = bufferedImageLoader.loadImage("/PlayerShip/spriteSheet.png");
-        sprites = new ObjectList<>();
+        BufferedImageLoader bufferedImageLoader = new BufferedImageLoader();
+        BufferedImage spriteSheet;
+
+        spriteSheet = bufferedImageLoader.loadImage("/Sprites/PlayerShip/spriteSheet.png");
+        playerSprites = new ObjectList<>();
         int spriteX = 0;
         while(spriteX < spriteSheet.getWidth()) {
-            sprites.add(spriteSheet.getSubimage(spriteX, 0, 500, 500));
+            playerSprites.add(spriteSheet.getSubimage(spriteX, 0, 500, 500));
             spriteX += 500;
         }
+
+        spriteSheet = bufferedImageLoader.loadImage("/Sprites/PlayerShip/engineSheet.png");
+        engineSprites = new ObjectList<>();
+        spriteX = 0;
+        while(spriteX < spriteSheet.getWidth()) {
+            engineSprites.add(spriteSheet.getSubimage(spriteX, 0, 500, 500));
+            spriteX += 500;
+        }
+
+        stars = bufferedImageLoader.loadImage("/stars.png");
+
+        thrust = new SFXPlayer("res/SFX/Ship/Thrust.wav", true);
+        speedUp = new SFXPlayer("res/SFX/Ship/Speed up.wav", false);
+        speedDown = new SFXPlayer("res/SFX/Ship/Speed down.wav", false);
+        turn = new SFXPlayer("res/SFX/Ship/Turn.wav", true);
 
         currentLocation = SystemID.Sol;
 
@@ -70,7 +105,7 @@ public class Player extends GameObject {
         components.replace(id, component);
     }
 
-    public float getStat(ComponentID id) {
+    public float[] getStat(ComponentID id) {
         return components.get(id).getStat();
     }
 
@@ -79,21 +114,110 @@ public class Player extends GameObject {
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
-        Vector2D mouseVector = new Vector2D(Window.getInstance().mousePoint.x, Window.getInstance().mousePoint.y);
-        directionVector = Maths.lerp(directionVector, mouseVector,0.05);
+        followMouse();
+        keyboard();
+        movement();
+    }
 
-        if(KeyHandler.isKeyPressed(Keys.W)) {
-            //Derive and derive and forward is opposite back unit vector
+    private void followMouse() {
+        //get the angles of the mousePoint and the facing point from the centre of the player
+        Vector2D mousePoint;
+        if(moving) {
+            Point2D rawMouse = MouseInfo.getPointerInfo().getLocation();
+            mousePoint = new Vector2D(rawMouse.getX()+(int)Game.getInstance().cameraMap.get(CameraID.game).getX(),
+                    rawMouse.getY()+(int)Game.getInstance().cameraMap.get(CameraID.game).getY());
+        } else {
+            mousePoint = Window.getInstance().mousePoint;
         }
+
+        double mouseAngle = midPos.angle(mousePoint);
+        double facingAngle = midPos.angle(midPos.add(directionUnitVector));
+
+        //set the rotation to the new value from the lerp function(lerp doesn't return difference anymore just the new point)
+        setRotation((float)Maths.lerp(facingAngle,mouseAngle,getStat(ComponentID.engine)[1]));
+        //set the direction unit vector to the new angle
+        directionUnitVector = Vector2D.polar(getRotation(),1);
+
+        if(!(Math.round(facingAngle * 10d)/10d == Math.round(mouseAngle * 10d) / 10d)) {
+            if(!turning) {
+                turning = true;
+                turn.play();
+            }
+        } else {
+            turning = false;
+            turn.stop();
+        }
+    }
+
+    private void keyboard() {
+        if(KeyHandler.isKeyPressed(Keys.W)) {
+            if(!enginesOn) {
+                speedUp.play();
+                speedDown.stop();
+                thrust.stop();
+            }
+            if(!speedUp.getClip().isActive() && !thrust.getClip().isActive()) {
+                thrust.play();
+            }
+            moving = true;
+            enginesOn = true;
+            targetMovementVector.set(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
+        } else if(KeyHandler.isKeyPressed(Keys.S)) {
+            moving = true;
+            enginesOn = false;
+            targetMovementVector.set(directionUnitVector.scale(getStat(ComponentID.engine)[0]/5).invert());
+        } else {
+            thrust.stop();
+            speedUp.stop();
+            if(enginesOn) {
+                speedDown.play();
+            }
+            enginesOn = false;
+            targetMovementVector.set(0, 0);
+        }
+    }
+
+    private void movement() {
+        if(enginesOn) {
+            if(engineTime > 10) {
+                engineTime = 0;
+                engineIndex++;
+                if(engineIndex >= engineSprites.size()) {
+                    engineIndex = 0;
+                }
+            } else {
+                engineTime++;
+            }
+        }
+
+        currentMovementVector = Maths.lerp(currentMovementVector, targetMovementVector, getStat(ComponentID.engine)[2]);
+        position = position.add(currentMovementVector);
+        midPos = midPos.add(currentMovementVector);
+
+        if(currentMovementVector.x == 0 && currentMovementVector.y == 0)moving = false;
+    }
+
+    public void setRotation(float rotation){
+        this.rotation = rotation;
+    }
+
+    public float getRotation(){
+        return rotation;
     }
 
     @Override
     public void render(Graphics2D g2d) {
         Drawable drawable = (g) -> {
+            g.setPaint(new TexturePaint(stars, new Rectangle2D.Double(0, 0, Window.gameWidth*2, Window.gameHeight*2)));
+            g.fillRect((int)midPos.x - Window.gameWidth/2, (int)midPos.y - Window.gameHeight/2, Window.gameWidth, Window.gameHeight);
+
             AffineTransform newTransform = g.getTransform();
-            newTransform.rotate(directionVector.x-midPos.x, directionVector.y-midPos.y, midPos.x, midPos.y);
+            newTransform.rotate(getRotation(), midPos.x, midPos.y);
             g.setTransform(newTransform);
-            g.drawImage(sprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+            if(enginesOn) {
+                g.drawImage(engineSprites.get(engineIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+            }
+            g.drawImage(playerSprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
         };
 
         renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));

@@ -5,13 +5,13 @@ public class Weapon extends Component{
     public Weapon(Level level) {
         switch(level) {
             case basic:
-                stat = 5;
+                stat[0] = 5;
                 break;
             case advanced:
-                stat = 25;
+                stat[0] = 25;
                 break;
             case elite:
-                stat = 50;
+                stat[0] = 50;
                 break;
         }
     }

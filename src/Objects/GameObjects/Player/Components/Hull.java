@@ -4,13 +4,13 @@ public class Hull extends Component{
     public Hull(Level level) {
         switch(level) {
             case basic:
-                stat = 100;
+                stat[0] = 100;
                 break;
             case advanced:
-                stat = 250;
+                stat[0] = 250;
                 break;
             case elite:
-                stat = 500;
+                stat[0] = 500;
                 break;
         }
     }

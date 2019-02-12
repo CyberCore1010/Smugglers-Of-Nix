@@ -1,7 +1,6 @@
 package Objects.Utility.Maths;
 
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 
 // mutable 2D vectors
 public final class Vector2D {
@@ -107,9 +106,15 @@ public final class Vector2D {
         return new Vector2D(newX, newY);
     }
 
-    // rotate by angle given in radians todo
+    public Vector2D invert() {
+        return new Vector2D(-this.x, -this.y);
+    }
+
+    // rotate by angle given in radians
     public Vector2D rotate(double angle) {
-        return this;
+        double newX = cos(angle*x)-sin(angle*y);
+        double newY = sin(angle*x)-cos(angle*y);
+        return new Vector2D(newX,newY);
     }
 
     // "dot product" ("scalar product") with argument vector
@@ -146,6 +151,6 @@ public final class Vector2D {
 
     // construct vector with given polar coordinates
     public static Vector2D polar(double angle, double mag) {
-        return new Vector2D(mag*Math.cos(angle), mag*Math.sin(angle));
+        return new Vector2D(mag* cos(angle), mag* sin(angle));
     }
 }
