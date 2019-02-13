@@ -1,9 +1,5 @@
 package Objects.Utility;
 
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -11,8 +7,8 @@ import javax.sound.sampled.FloatControl;
 import java.io.File;
 
 public class SFXPlayer {
-    Clip clip;
-    boolean looping;
+    private Clip clip;
+    private boolean looping;
 
     public SFXPlayer(String sound, boolean looping) {
         try {

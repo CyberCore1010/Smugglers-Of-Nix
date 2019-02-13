@@ -10,6 +10,7 @@ import Objects.GameObjects.Player.Components.Component;
 import Objects.GameWorld.SystemID;
 import Objects.Utility.*;
 import Objects.Utility.Maths.Maths;
+import Objects.Utility.Maths.Physics;
 import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
@@ -18,7 +19,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public class Player extends GameObject {
+public class Player extends GameObject implements Physics {
     private Vector2D position;
     private Vector2D midPos;
     private Vector2D directionUnitVector;
@@ -121,20 +122,20 @@ public class Player extends GameObject {
 
     private void followMouse() {
         //get the angles of the mousePoint and the facing point from the centre of the player
-        Vector2D mousePoint;
-        if(moving) {
-            Point2D rawMouse = MouseInfo.getPointerInfo().getLocation();
-            mousePoint = new Vector2D(rawMouse.getX()+(int)Game.getInstance().cameraMap.get(CameraID.game).getX(),
-                    rawMouse.getY()+(int)Game.getInstance().cameraMap.get(CameraID.game).getY());
-        } else {
-            mousePoint = Window.getInstance().mousePoint;
-        }
+        Vector2D mousePoint = Window.getInstance().getMousePoint();
 
-        double mouseAngle = midPos.angle(mousePoint);
-        double facingAngle = midPos.angle(midPos.add(directionUnitVector));
+        double mouseAngle = midPos.polarAngle(mousePoint);
+        double facingAngle = midPos.polarAngle(midPos.add(directionUnitVector));
+
+        if(facingAngle > Math.PI && mouseAngle < (Math.PI/2)+(Math.PI/4)) {
+            mouseAngle = mouseAngle+(Math.PI*2);
+        } else if(facingAngle < (Math.PI/2)-(Math.PI/4) && mouseAngle > Math.PI) {
+            mouseAngle = (Math.PI*2)-mouseAngle;
+        }
 
         //set the rotation to the new value from the lerp function(lerp doesn't return difference anymore just the new point)
         setRotation((float)Maths.lerp(facingAngle,mouseAngle,getStat(ComponentID.engine)[1]));
+
         //set the direction unit vector to the new angle
         directionUnitVector = Vector2D.polar(getRotation(),1);
 
@@ -191,10 +192,16 @@ public class Player extends GameObject {
         }
 
         currentMovementVector = Maths.lerp(currentMovementVector, targetMovementVector, getStat(ComponentID.engine)[2]);
+        applyForce(currentMovementVector);
         position = position.add(currentMovementVector);
         midPos = midPos.add(currentMovementVector);
 
         if(currentMovementVector.x == 0 && currentMovementVector.y == 0)moving = false;
+    }
+
+    @Override
+    public void applyForce(Vector2D force) {
+
     }
 
     public void setRotation(float rotation){
@@ -210,6 +217,13 @@ public class Player extends GameObject {
         Drawable drawable = (g) -> {
             g.setPaint(new TexturePaint(stars, new Rectangle2D.Double(0, 0, Window.gameWidth*2, Window.gameHeight*2)));
             g.fillRect((int)midPos.x - Window.gameWidth/2, (int)midPos.y - Window.gameHeight/2, Window.gameWidth, Window.gameHeight);
+
+            /*
+            g.setPaint(Color.red);
+            g.drawString(String.valueOf(getRotation()), (int)position.x, (int)position.y-30);
+            g.drawString(String.valueOf(position), (int)position.x+width, (int)position.y-30);
+            g.drawString(String.valueOf(Window.getInstance().getMousePoint()), (int)Window.getInstance().getMousePoint().x , (int)Window.getInstance().getMousePoint().y);
+            */
 
             AffineTransform newTransform = g.getTransform();
             newTransform.rotate(getRotation(), midPos.x, midPos.y);

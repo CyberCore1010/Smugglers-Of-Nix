@@ -64,6 +64,18 @@ public final class Vector2D {
         return Math.atan2(other.y-y, other.x-x);
     }
 
+    public double polarAngle(Vector2D other) {
+        double diffX = other.x-x;
+        double diffY = other.y-y;
+        double angle = atan(diffY/diffX);
+
+        if(diffX > 0 && diffY > 0) return angle;
+        else if(diffX < 0 && diffY > 0) return Math.PI+angle;
+        else if(diffX < 0 && diffY < 0) return Math.PI+angle;
+        else if(diffX > 0 && diffY < 0) return (Math.PI*2)+angle;
+        return 0;
+    }
+
     // add argument vector
     public Vector2D add(Vector2D v) {
         double newX = x + v.x;
@@ -151,6 +163,6 @@ public final class Vector2D {
 
     // construct vector with given polar coordinates
     public static Vector2D polar(double angle, double mag) {
-        return new Vector2D(mag* cos(angle), mag* sin(angle));
+        return new Vector2D(mag*cos(angle), mag*sin(angle));
     }
 }
