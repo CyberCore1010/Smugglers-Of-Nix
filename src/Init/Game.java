@@ -1,7 +1,10 @@
 package Init;
 
+import Objects.GameObjects.Background;
+import Objects.GameObjects.GameObject;
 import Objects.GameObjects.Player.Player;
-import Objects.GameWorld.Systems;
+import Objects.GameWorld.Universe;
+import Objects.Utility.ObjectList;
 import Objects.Utility.ObjectMap;
 
 import javax.swing.*;
@@ -17,7 +20,9 @@ public class Game extends JComponent {
     private static Game game;
 
     //testing
-    private Player player;
+    public Player player;
+    private Universe universe;
+    public ObjectList<GameObject> handler;
 
     private Game() {
         cameraMap = new ObjectMap<>();
@@ -25,6 +30,13 @@ public class Game extends JComponent {
         cameraMap.put(CameraID.screen, new Camera(0, 0, 1, Window.gameWidth, Window.gameHeight));
 
         player = new Player(0, 0, Window.gameWidth/20, Window.gameWidth/20);
+        universe = new Universe();
+
+        handler = new ObjectList<>();
+        handler.add(new Background(player));
+        handler.add(player);
+        handler.addAll(universe.systems.get(player.getCurrentLocation()).entities);
+
         thread = new Thread(this::start);
         thread.start();
     }
@@ -63,8 +75,17 @@ public class Game extends JComponent {
         stop();
     }
 
+    public void rebuildHandler() {
+        ObjectList<GameObject> temp = new ObjectList<>();
+        temp.add(player);
+        temp.addAll(universe.systems.get(player.getCurrentLocation()).entities);
+        handler = temp;
+    }
+
     private void update() {
-        player.update();
+        for(GameObject object : handler) {
+            object.update();
+        }
     }
 
     private void stop() {
@@ -84,7 +105,9 @@ public class Game extends JComponent {
 
         ////////DRAWING AREA////////
 
-        player.render(g2d);
+        for(GameObject object : handler) {
+            object.render(g2d);
+        }
 
         ////////MENU DRAWING////////
         g2d.dispose();

@@ -5,7 +5,7 @@ import Objects.Utility.ObjectMap;
 public class Universe {
     public ObjectMap<SystemID, Systems> systems;
 
-    Universe() {
+    public Universe() {
         systems = new ObjectMap<>();
         //Close locations
         systems.put(SystemID.Sol, new Systems(SystemID.Sol));
@@ -21,13 +21,5 @@ public class Universe {
         systems.put(SystemID.Astraeus, new Systems(SystemID.Astraeus));
         systems.put(SystemID.Nyx, new Systems(SystemID.Nyx));
         systems.put(SystemID.GrimHex, new Systems(SystemID.GrimHex));
-    }
-
-    public void update() {
-
-    }
-
-    public void render() {
-
     }
 }

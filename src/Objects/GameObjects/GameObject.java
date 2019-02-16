@@ -5,6 +5,12 @@ import Init.Camera;
 import java.awt.*;
 
 public abstract class GameObject {
+    public ObjectID id;
+
+    public GameObject(ObjectID id) {
+        this.id = id;
+    }
+
     public abstract void update();
     public abstract void render(Graphics2D g2d);
 

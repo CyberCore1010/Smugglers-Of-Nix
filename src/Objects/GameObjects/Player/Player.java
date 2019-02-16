@@ -5,6 +5,7 @@ import Init.Game;
 import Init.Window;
 import Objects.GameObjects.Drawable;
 import Objects.GameObjects.GameObject;
+import Objects.GameObjects.ObjectID;
 import Objects.GameObjects.Player.Components.*;
 import Objects.GameObjects.Player.Components.Component;
 import Objects.GameWorld.SystemID;
@@ -18,7 +19,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Player extends GameObject {
-    private Vector2D position;
+    public Vector2D position;
     private Vector2D midPos;
     private Vector2D directionUnitVector;
 
@@ -38,8 +39,6 @@ public class Player extends GameObject {
     private int engineIndex = 0;
     private int engineTime = 0;
 
-    private BufferedImage stars;
-
     private SFXPlayer speedUp;
     private SFXPlayer speedDown;
     private SFXPlayer thrust;
@@ -50,6 +49,7 @@ public class Player extends GameObject {
     private ObjectMap<ComponentID, Component> components;
 
     public Player(float x, float y, float width, float height) {
+        super(ObjectID.player);
         position = new Vector2D(x, y);
         midPos = new Vector2D(x+(width/2), y+height/2);
         directionUnitVector = new Vector2D(0.01, 0.01);
@@ -77,8 +77,6 @@ public class Player extends GameObject {
             engineSprites.add(spriteSheet.getSubimage(spriteX, 0, 500, 500));
             spriteX += 500;
         }
-
-        stars = bufferedImageLoader.loadImage("/stars.png");
 
         thrust = new SFXPlayer("res/SFX/Ship/Thrust.wav", true);
         speedUp = new SFXPlayer("res/SFX/Ship/Speed up.wav", false);
@@ -208,9 +206,6 @@ public class Player extends GameObject {
     @Override
     public void render(Graphics2D g2d) {
         Drawable drawable = (g) -> {
-            g.setPaint(new TexturePaint(stars, new Rectangle2D.Double(0, 0, Window.gameWidth*2, Window.gameHeight*2)));
-            g.fillRect((int)midPos.x - Window.gameWidth/2, (int)midPos.y - Window.gameHeight/2, Window.gameWidth, Window.gameHeight);
-
             g.setPaint(Color.red);
             g.drawString(String.valueOf(String.format("%.2f%n", getRotation())), (int)position.x, (int)position.y-30);
             g.drawString(String.valueOf(position), (int)position.x+width, (int)position.y-30);
