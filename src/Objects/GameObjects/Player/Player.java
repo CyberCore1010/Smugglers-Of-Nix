@@ -193,16 +193,10 @@ public class Player extends GameObject implements Physics {
         }
 
         currentMovementVector = Maths.lerp(currentMovementVector, targetMovementVector, getStat(ComponentID.engine)[2]);
-        applyForce(currentMovementVector);
         position = position.add(currentMovementVector);
         midPos = midPos.add(currentMovementVector);
 
         if(currentMovementVector.x == 0 && currentMovementVector.y == 0)moving = false;
-    }
-
-    @Override
-    public void applyForce(Vector2D force) {
-
     }
 
     public void setRotation(float rotation){
