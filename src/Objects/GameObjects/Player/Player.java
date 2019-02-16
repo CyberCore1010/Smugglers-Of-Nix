@@ -25,8 +25,11 @@ public class Player extends GameObject implements Physics {
     private Vector2D directionUnitVector;
 
     private boolean moving = true;
-    private Vector2D currentMovementVector;
-    private Vector2D targetMovementVector;
+    private Vector2D force;
+    private double mass;
+    private Vector2D speed;
+    private Vector2D velocity;
+    private Vector2D resultantForce;
 
     private float width, height;
     private float rotation = 1;
@@ -56,8 +59,12 @@ public class Player extends GameObject implements Physics {
         midPos = new Vector2D(x+(width/2), y+height/2);
         directionUnitVector = new Vector2D(0.01, 0.01);
 
-        currentMovementVector = new Vector2D(0, 0);
-        targetMovementVector = new Vector2D(0, 0);
+        force = new Vector2D();
+        mass = 200;
+        speed = new Vector2D();
+        velocity = new Vector2D();
+        resultantForce = new Vector2D();
+
         this.width = width;
         this.height = height;
 
@@ -163,11 +170,12 @@ public class Player extends GameObject implements Physics {
             }
             moving = true;
             enginesOn = true;
-            targetMovementVector.set(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
+            force.set(directionUnitVector.scale(getStat(ComponentID.engine)[1]));
+            //forward
         } else if(KeyHandler.isKeyPressed(Keys.S)) {
             moving = true;
             enginesOn = false;
-            targetMovementVector.set(directionUnitVector.scale(getStat(ComponentID.engine)[0]/5).invert());
+            force.set(directionUnitVector.scale(getStat(ComponentID.engine)[1]/5).invert());
         } else {
             thrust.stop();
             speedUp.stop();
@@ -175,7 +183,7 @@ public class Player extends GameObject implements Physics {
                 speedDown.play();
             }
             enginesOn = false;
-            targetMovementVector.set(0, 0);
+            force.set(0, 0);
         }
     }
 
@@ -192,17 +200,20 @@ public class Player extends GameObject implements Physics {
             }
         }
 
-        currentMovementVector = Maths.lerp(currentMovementVector, targetMovementVector, getStat(ComponentID.engine)[2]);
-        applyForce(currentMovementVector);
-        position = position.add(currentMovementVector);
-        midPos = midPos.add(currentMovementVector);
-
-        if(currentMovementVector.x == 0 && currentMovementVector.y == 0)moving = false;
+        applyForce(force);
+        position = position.add(resultantForce);
+        midPos = midPos.add(resultantForce);
     }
 
     @Override
     public void applyForce(Vector2D force) {
+        Vector2D acceleration = new Vector2D(force.x/mass, force.y/mass);
+        speed = speed.add(acceleration);
+        velocity = velocity.add(speed);
 
+        Vector2D dragForceVector = new Vector2D(velocity.getUnitVector().scale(-1*velocity.mag()*0.8));
+
+        resultantForce = velocity.add(dragForceVector);
     }
 
     public void setRotation(float rotation){
