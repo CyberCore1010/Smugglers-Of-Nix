@@ -45,7 +45,7 @@ public final class Vector2D {
 
     // String for displaying vector as text
     public String toString() {
-        return "["+x+", "+y+"]";
+        return "["+String.valueOf(String.format("%.2f%n", x))+", "+String.valueOf(String.format("%.2f%n", y))+"]";
     }
 
     //  magnitude (= "length") of this vector

@@ -127,9 +127,10 @@ public class Player extends GameObject implements Physics {
         double mouseAngle = midPos.polarAngle(mousePoint);
         double facingAngle = midPos.polarAngle(midPos.add(directionUnitVector));
 
-        if(facingAngle > Math.PI && mouseAngle < (Math.PI/2)+(Math.PI/4)) {
+        if(facingAngle > Math.PI && mouseAngle < Math.PI/2) {
             mouseAngle = mouseAngle+(Math.PI*2);
-        } else if(facingAngle < (Math.PI/2)-(Math.PI/4) && mouseAngle > Math.PI) {
+        }
+        if(facingAngle < Math.PI/2 && mouseAngle > Math.PI) {
             mouseAngle = (Math.PI*2)-mouseAngle;
         }
 
@@ -218,12 +219,10 @@ public class Player extends GameObject implements Physics {
             g.setPaint(new TexturePaint(stars, new Rectangle2D.Double(0, 0, Window.gameWidth*2, Window.gameHeight*2)));
             g.fillRect((int)midPos.x - Window.gameWidth/2, (int)midPos.y - Window.gameHeight/2, Window.gameWidth, Window.gameHeight);
 
-            /*
             g.setPaint(Color.red);
-            g.drawString(String.valueOf(getRotation()), (int)position.x, (int)position.y-30);
+            g.drawString(String.valueOf(String.format("%.2f%n", getRotation())), (int)position.x, (int)position.y-30);
             g.drawString(String.valueOf(position), (int)position.x+width, (int)position.y-30);
             g.drawString(String.valueOf(Window.getInstance().getMousePoint()), (int)Window.getInstance().getMousePoint().x , (int)Window.getInstance().getMousePoint().y);
-            */
 
             AffineTransform newTransform = g.getTransform();
             newTransform.rotate(getRotation(), midPos.x, midPos.y);
