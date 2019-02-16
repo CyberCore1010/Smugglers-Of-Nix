@@ -127,11 +127,11 @@ public class Player extends GameObject implements Physics {
         double mouseAngle = midPos.polarAngle(mousePoint);
         double facingAngle = midPos.polarAngle(midPos.add(directionUnitVector));
 
-        if(facingAngle > Math.PI && mouseAngle < Math.PI/2) {
+        if(facingAngle > Math.PI && mouseAngle < (Math.PI/2)+(Math.PI/4)) {
             mouseAngle = mouseAngle+(Math.PI*2);
         }
-        if(facingAngle < Math.PI/2 && mouseAngle > Math.PI) {
-            mouseAngle = (Math.PI*2)-mouseAngle;
+        if(facingAngle < (Math.PI/2)-(Math.PI/4) && mouseAngle > Math.PI) {
+            mouseAngle = mouseAngle-(Math.PI*2);
         }
 
         //set the rotation to the new value from the lerp function(lerp doesn't return difference anymore just the new point)
