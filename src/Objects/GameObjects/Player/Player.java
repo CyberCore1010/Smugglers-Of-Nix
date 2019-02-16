@@ -19,7 +19,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public class Player extends GameObject implements Physics {
+public class Player extends GameObject {
     private Vector2D position;
     private Vector2D midPos;
     private Vector2D directionUnitVector;
