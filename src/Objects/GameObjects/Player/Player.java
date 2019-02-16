@@ -10,12 +10,10 @@ import Objects.GameObjects.Player.Components.Component;
 import Objects.GameWorld.SystemID;
 import Objects.Utility.*;
 import Objects.Utility.Maths.Maths;
-import Objects.Utility.Maths.Physics;
 import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
