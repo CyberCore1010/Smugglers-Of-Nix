@@ -25,9 +25,7 @@ public class Player extends GameObject implements Physics {
     private Vector2D directionUnitVector;
 
     private boolean moving = true;
-    private Vector2D force;
     private double mass;
-    private Vector2D speed;
     private Vector2D velocity;
     private Vector2D resultantForce;
 
@@ -58,12 +56,9 @@ public class Player extends GameObject implements Physics {
         position = new Vector2D(x, y);
         midPos = new Vector2D(x+(width/2), y+height/2);
         directionUnitVector = new Vector2D(0.01, 0.01);
-
-        force = new Vector2D();
-        mass = 20;
-        speed = new Vector2D();
+        mass = 200;
         velocity = new Vector2D();
-        resultantForce = new Vector2D();
+        resultantForce = new Vector2D(0,0);
 
         this.width = width;
         this.height = height;
@@ -119,6 +114,7 @@ public class Player extends GameObject implements Physics {
 
     @Override
     public void update() {
+        resultantForce.set(0, 0);
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
@@ -141,7 +137,7 @@ public class Player extends GameObject implements Physics {
             mouseAngle = mouseAngle-(Math.PI*2);
         }
 
-        //set the rotation to the new value from the lerp function(lerp doesn't return difference anymore just the new point)
+        //set the rotation to the new value from the lerp function
         setRotation((float)Maths.lerp(facingAngle,mouseAngle,getStat(ComponentID.engine)[1]));
 
         //set the direction unit vector to the new angle
@@ -168,15 +164,15 @@ public class Player extends GameObject implements Physics {
             if(!speedUp.getClip().isActive() && !thrust.getClip().isActive()) {
                 thrust.play();
             }
+
             moving = true;
             enginesOn = true;
-            force = directionUnitVector.scale(getStat(ComponentID.engine)[2]);
-            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[2]));
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
         } else if(KeyHandler.isKeyPressed(Keys.S)) {
             moving = true;
             enginesOn = false;
-            force = directionUnitVector.scale(getStat(ComponentID.engine)[2]/5).invert();
-            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[2]/5).invert());
+            thrust.play();
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]/5).invert());
         } else {
             thrust.stop();
             speedUp.stop();
@@ -184,11 +180,6 @@ public class Player extends GameObject implements Physics {
                 speedDown.play();
             }
             enginesOn = false;
-            if((velocity.x > 0.015 || velocity.x < -0.015)&&(velocity.y > 0.015 || velocity.y < -0.015)) applyForce(new Vector2D(force.invert()));
-            else {
-                resultantForce = new Vector2D();
-                velocity = new Vector2D();
-            }
         }
     }
 
@@ -204,13 +195,10 @@ public class Player extends GameObject implements Physics {
                 engineTime++;
             }
         }
-
-        Vector2D dragForceVector = new Vector2D(velocity.getUnitVector().scale(-1*velocity.mag()*0.8));
-        resultantForce.add(dragForceVector);
-
-        Vector2D acceleration = new Vector2D(resultantForce.x/mass, resultantForce.y/mass);
+        Vector2D dragForceVector = new Vector2D(velocity.getUnitVector().scale(-1*velocity.mag()*0.9));
+        applyForce(dragForceVector);
+        Vector2D acceleration = new Vector2D(resultantForce.x/mass,resultantForce.y/mass);
         velocity = velocity.add(acceleration);
-
         position = position.add(velocity);
         midPos = midPos.add(velocity);
     }
