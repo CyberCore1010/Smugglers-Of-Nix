@@ -60,7 +60,7 @@ public class Player extends GameObject implements Physics {
         directionUnitVector = new Vector2D(0.01, 0.01);
 
         force = new Vector2D();
-        mass = 200;
+        mass = 20;
         speed = new Vector2D();
         velocity = new Vector2D();
         resultantForce = new Vector2D();
@@ -170,12 +170,13 @@ public class Player extends GameObject implements Physics {
             }
             moving = true;
             enginesOn = true;
-            force.set(directionUnitVector.scale(getStat(ComponentID.engine)[1]));
-            //forward
+            force = directionUnitVector.scale(getStat(ComponentID.engine)[2]);
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[2]));
         } else if(KeyHandler.isKeyPressed(Keys.S)) {
             moving = true;
             enginesOn = false;
-            force.set(directionUnitVector.scale(getStat(ComponentID.engine)[1]/5).invert());
+            force = directionUnitVector.scale(getStat(ComponentID.engine)[2]/5).invert();
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[2]/5).invert());
         } else {
             thrust.stop();
             speedUp.stop();
@@ -183,7 +184,11 @@ public class Player extends GameObject implements Physics {
                 speedDown.play();
             }
             enginesOn = false;
-            force.set(0, 0);
+            if((velocity.x > 0.015 || velocity.x < -0.015)&&(velocity.y > 0.015 || velocity.y < -0.015)) applyForce(new Vector2D(force.invert()));
+            else {
+                resultantForce = new Vector2D();
+                velocity = new Vector2D();
+            }
         }
     }
 
@@ -200,20 +205,19 @@ public class Player extends GameObject implements Physics {
             }
         }
 
-        applyForce(force);
-        position = position.add(resultantForce);
-        midPos = midPos.add(resultantForce);
+        Vector2D dragForceVector = new Vector2D(velocity.getUnitVector().scale(-1*velocity.mag()*0.8));
+        resultantForce.add(dragForceVector);
+
+        Vector2D acceleration = new Vector2D(resultantForce.x/mass, resultantForce.y/mass);
+        velocity = velocity.add(acceleration);
+
+        position = position.add(velocity);
+        midPos = midPos.add(velocity);
     }
 
     @Override
     public void applyForce(Vector2D force) {
-        Vector2D acceleration = new Vector2D(force.x/mass, force.y/mass);
-        speed = speed.add(acceleration);
-        velocity = velocity.add(speed);
-
-        Vector2D dragForceVector = new Vector2D(velocity.getUnitVector().scale(-1*velocity.mag()*0.8));
-
-        resultantForce = velocity.add(dragForceVector);
+        resultantForce = resultantForce.add(force);
     }
 
     public void setRotation(float rotation){
