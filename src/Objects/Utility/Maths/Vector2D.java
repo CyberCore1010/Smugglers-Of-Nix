@@ -149,6 +149,9 @@ public final class Vector2D {
 
     // normalise vector so that magnitude becomes 1 "normalise"
     public Vector2D getUnitVector() {
+        if(x == 0 && y == 0) {
+            return this;
+        }
         double distance = this.mag();
         double newX = x/distance;
         double newY = y/distance;

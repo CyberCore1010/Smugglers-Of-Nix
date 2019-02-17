@@ -24,8 +24,9 @@ public class Player extends GameObject {
     private Vector2D directionUnitVector;
 
     private boolean moving = true;
-    private Vector2D currentMovementVector;
-    private Vector2D targetMovementVector;
+    private double mass;
+    private Vector2D velocity;
+    private Vector2D resultantForce;
 
     private float width, height;
     private float rotation = 1;
@@ -53,9 +54,10 @@ public class Player extends GameObject {
         position = new Vector2D(x, y);
         midPos = new Vector2D(x+(width/2), y+height/2);
         directionUnitVector = new Vector2D(0.01, 0.01);
+        mass = 200;
+        velocity = new Vector2D();
+        resultantForce = new Vector2D(0,0);
 
-        currentMovementVector = new Vector2D(0, 0);
-        targetMovementVector = new Vector2D(0, 0);
         this.width = width;
         this.height = height;
 
@@ -108,6 +110,7 @@ public class Player extends GameObject {
 
     @Override
     public void update() {
+        resultantForce.set(0, 0);
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
@@ -130,7 +133,7 @@ public class Player extends GameObject {
             mouseAngle = mouseAngle-(Math.PI*2);
         }
 
-        //set the rotation to the new value from the lerp function(lerp doesn't return difference anymore just the new point)
+        //set the rotation to the new value from the lerp function
         setRotation((float)Maths.lerp(facingAngle,mouseAngle,getStat(ComponentID.engine)[1]));
 
         //set the direction unit vector to the new angle
@@ -157,13 +160,15 @@ public class Player extends GameObject {
             if(!speedUp.getClip().isActive() && !thrust.getClip().isActive()) {
                 thrust.play();
             }
+
             moving = true;
             enginesOn = true;
-            targetMovementVector.set(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
         } else if(KeyHandler.isKeyPressed(Keys.S)) {
             moving = true;
             enginesOn = false;
-            targetMovementVector.set(directionUnitVector.scale(getStat(ComponentID.engine)[0]/5).invert());
+            thrust.play();
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]/5).invert());
         } else {
             thrust.stop();
             speedUp.stop();
@@ -171,7 +176,6 @@ public class Player extends GameObject {
                 speedDown.play();
             }
             enginesOn = false;
-            targetMovementVector.set(0, 0);
         }
     }
 
@@ -187,12 +191,18 @@ public class Player extends GameObject {
                 engineTime++;
             }
         }
+        
+        Vector2D dragForceVector = new Vector2D(velocity.getUnitVector().scale(-1*velocity.mag()*0.9));
+        applyForce(dragForceVector);
+        Vector2D acceleration = new Vector2D(resultantForce.x/mass,resultantForce.y/mass);
+        velocity = velocity.add(acceleration);
+        position = position.add(velocity);
+        midPos = midPos.add(velocity);
+    }
 
-        currentMovementVector = Maths.lerp(currentMovementVector, targetMovementVector, getStat(ComponentID.engine)[2]);
-        position = position.add(currentMovementVector);
-        midPos = midPos.add(currentMovementVector);
-
-        if(currentMovementVector.x == 0 && currentMovementVector.y == 0)moving = false;
+    @Override
+    public void applyForce(Vector2D force) {
+        resultantForce = resultantForce.add(force);
     }
 
     public void setRotation(float rotation){
