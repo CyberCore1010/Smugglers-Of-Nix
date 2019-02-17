@@ -1,4 +1,4 @@
-package Objects.GameObjects;
+package Objects.GameObjects.Properties;
 
 import java.awt.*;
 

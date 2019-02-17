@@ -3,9 +3,10 @@ package Objects.GameObjects.Player;
 import Init.CameraID;
 import Init.Game;
 import Init.Window;
-import Objects.GameObjects.Drawable;
+import Objects.GameObjects.Properties.Drawable;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.ObjectID;
+import Objects.GameObjects.Properties.Physics;
 import Objects.GameObjects.Player.Components.*;
 import Objects.GameObjects.Player.Components.Component;
 import Objects.GameWorld.SystemID;
@@ -15,15 +16,13 @@ import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public class Player extends GameObject {
+public class Player extends GameObject implements Physics{
     public Vector2D position;
     private Vector2D midPos;
     private Vector2D directionUnitVector;
 
-    private boolean moving = true;
     private double mass;
     private Vector2D velocity;
     private Vector2D resultantForce;
@@ -161,11 +160,9 @@ public class Player extends GameObject {
                 thrust.play();
             }
 
-            moving = true;
             enginesOn = true;
             applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
         } else if(KeyHandler.isKeyPressed(Keys.S)) {
-            moving = true;
             enginesOn = false;
             thrust.play();
             applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]/5).invert());

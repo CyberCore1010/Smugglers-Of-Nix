@@ -4,6 +4,7 @@ import Init.CameraID;
 import Init.Game;
 import Init.Window;
 import Objects.GameObjects.Player.Player;
+import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.BufferedImageLoader;
 
 import java.awt.*;

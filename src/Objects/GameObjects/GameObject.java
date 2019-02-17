@@ -1,6 +1,7 @@
 package Objects.GameObjects;
 
 import Init.Camera;
+import Objects.GameObjects.Properties.Drawable;
 
 import java.awt.*;
 
