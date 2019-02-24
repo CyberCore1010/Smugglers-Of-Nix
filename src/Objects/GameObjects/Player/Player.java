@@ -3,6 +3,7 @@ package Objects.GameObjects.Player;
 import Init.CameraID;
 import Init.Game;
 import Init.Window;
+import Objects.GameObjects.Player.HUD.HUD;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.ObjectID;
@@ -16,12 +17,22 @@ import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Player extends GameObject implements Physics{
     public Vector2D position;
-    private Vector2D midPos;
-    private Vector2D directionUnitVector;
+    public Vector2D midPos;
+    public Vector2D directionUnitVector;
+
+    public int maxHealth;
+    public int health;
+    public int maxShield;
+    public int shield;
+    public int fuel;
+    public int maxFuel;
 
     private double mass;
     private Vector2D velocity;
@@ -29,6 +40,7 @@ public class Player extends GameObject implements Physics{
 
     private float width, height;
     private float rotation = 1;
+    private double mouseAngle;
     private boolean turning;
 
     private ObjectList<BufferedImage> playerSprites;
@@ -43,10 +55,15 @@ public class Player extends GameObject implements Physics{
     private SFXPlayer speedDown;
     private SFXPlayer thrust;
     private SFXPlayer turn;
+    public SFXPlayer jumpSound;
 
     private SystemID currentLocation;
+    public boolean jumping, chargingJump;
+    private BufferedImage jump;
+    public Timer timer;
 
     private ObjectMap<ComponentID, Component> components;
+    private HUD hud;
 
     public Player(float x, float y, float width, float height) {
         super(ObjectID.player);
@@ -83,8 +100,12 @@ public class Player extends GameObject implements Physics{
         speedUp = new SFXPlayer("res/SFX/Ship/Speed up.wav", false);
         speedDown = new SFXPlayer("res/SFX/Ship/Speed down.wav", false);
         turn = new SFXPlayer("res/SFX/Ship/Turn.wav", true);
+        jumpSound = new SFXPlayer("res/SFX/Ship/Frame shift.wav", false);
 
         currentLocation = SystemID.Sol;
+        chargingJump = false;
+        jumping = false;
+        jump = bufferedImageLoader.loadImage("/Sprites/PlayerShip/jump.png");
 
         components = new ObjectMap<>();
         components.put(ComponentID.weaponLeft, new Weapon(Level.basic));
@@ -93,10 +114,50 @@ public class Player extends GameObject implements Physics{
         components.put(ComponentID.hull, new Hull(Level.basic));
         components.put(ComponentID.engine, new Engine(Level.basic));
         components.put(ComponentID.jumpdrive, new Jumpdrive(Level.basic));
+
+        maxHealth = (int)components.get(ComponentID.hull).getStat()[0];
+        health = maxHealth;
+        maxShield = (int)components.get(ComponentID.shield).getStat()[0];
+        shield = maxShield;
+        fuel = 100;
+        maxFuel = fuel;
+
+        hud = new HUD(this);
     }
 
     public SystemID getCurrentLocation() {
         return currentLocation;
+    }
+
+    public void jumpTo(SystemID location) {
+        chargingJump = true;
+        jumpSound.play();
+        timer = new Timer();
+        TimerTask start = new TimerTask() {
+            @Override
+            public void run() {
+                chargingJump = false;
+                jumping = true;
+            }
+        };
+        TimerTask end = new TimerTask() {
+            @Override
+            public void run() {
+                currentLocation = location;
+                Game.getInstance().rebuildHandler();
+                jumping = false;
+                position.set(0, 0);
+                midPos.set(0+width/2, 0+height/2);
+            }
+        };
+        timer.schedule(start, 20115);
+        timer.schedule(end, 33553);
+    }
+
+    public void cancelJump() {
+        chargingJump = false;
+        jumpSound.stop();
+        timer.cancel();
     }
 
     public void upgrade(ComponentID id, Component component) {
@@ -110,19 +171,25 @@ public class Player extends GameObject implements Physics{
     @Override
     public void update() {
         resultantForce.set(0, 0);
+
+        if(!jumping && !chargingJump) {
+            Vector2D mousePoint = Window.getInstance().getMousePoint();
+            mouseAngle = midPos.polarAngle(mousePoint);
+            followMouse();
+            keyboard();
+        } else {
+            followMouse();
+            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
+        }
+        movement();
+
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
-        followMouse();
-        keyboard();
-        movement();
+        hud.update();
     }
 
     private void followMouse() {
-        //get the angles of the mousePoint and the facing point from the centre of the player
-        Vector2D mousePoint = Window.getInstance().getMousePoint();
-
-        double mouseAngle = midPos.polarAngle(mousePoint);
         double facingAngle = midPos.polarAngle(midPos.add(directionUnitVector));
 
         if(facingAngle > Math.PI && mouseAngle < (Math.PI/2)+(Math.PI/4)) {
@@ -177,7 +244,7 @@ public class Player extends GameObject implements Physics{
     }
 
     private void movement() {
-        if(enginesOn) {
+        if(enginesOn || chargingJump || jumping) {
             if(engineTime > 10) {
                 engineTime = 0;
                 engineIndex++;
@@ -213,20 +280,21 @@ public class Player extends GameObject implements Physics{
     @Override
     public void render(Graphics2D g2d) {
         Drawable drawable = (g) -> {
-            g.setPaint(Color.red);
-            g.drawString(String.valueOf(String.format("%.2f%n", getRotation())), (int)position.x, (int)position.y-30);
-            g.drawString(String.valueOf(position), (int)position.x+width, (int)position.y-30);
-            g.drawString(String.valueOf(Window.getInstance().getMousePoint()), (int)Window.getInstance().getMousePoint().x , (int)Window.getInstance().getMousePoint().y);
+            if(jumping) {
+                g.setPaint(new TexturePaint(jump, new Rectangle2D.Double(-position.x*5, -position.y*5, Init.Window.gameWidth*2, Init.Window.gameHeight*2)));
+                g.fillRect((int)Game.getInstance().cameraMap.get(CameraID.game).getX(), (int)Game.getInstance().cameraMap.get(CameraID.game).getY(), Init.Window.gameWidth, Window.gameHeight);
+            }
 
             AffineTransform newTransform = g.getTransform();
             newTransform.rotate(getRotation(), midPos.x, midPos.y);
             g.setTransform(newTransform);
-            if(enginesOn) {
+            if(enginesOn || chargingJump || jumping) {
                 g.drawImage(engineSprites.get(engineIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
             }
             g.drawImage(playerSprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
         };
 
         renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
+        hud.render(g2d);
     }
 }

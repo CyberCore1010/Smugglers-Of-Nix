@@ -6,8 +6,6 @@ import Objects.GameObjects.ObjectID;
 import Objects.GameObjects.Player.Player;
 import Objects.Utility.ObjectList;
 
-import java.awt.*;
-
 public class Systems {
     public ObjectList<GameObject> entities;
     private SystemID id;

@@ -8,10 +8,10 @@ public class Shield extends Component {
                 stat[0] = 2;
                 break;
             case advanced:
-                stat[0] = 5;
+                stat[0] = 4;
                 break;
             case elite:
-                stat[0] = 10;
+                stat[0] = 8;
                 break;
         }
     }

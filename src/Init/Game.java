@@ -6,6 +6,7 @@ import Objects.GameObjects.Player.Player;
 import Objects.GameWorld.Universe;
 import Objects.Utility.ObjectList;
 import Objects.Utility.ObjectMap;
+import Objects.Utility.SFXPlayer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +21,8 @@ public class Game extends JComponent {
     private static Game game;
 
     //testing
-    public Player player;
     private Universe universe;
+    public Player player;
     public ObjectList<GameObject> handler;
 
     private Game() {
@@ -29,13 +30,16 @@ public class Game extends JComponent {
         cameraMap.put(CameraID.game, new Camera(0, 0, 1, Window.gameWidth, Window.gameHeight));
         cameraMap.put(CameraID.screen, new Camera(0, 0, 1, Window.gameWidth, Window.gameHeight));
 
-        player = new Player(0, 0, Window.gameWidth/20, Window.gameWidth/20);
         universe = new Universe();
+        player = new Player(0, 0, Window.gameWidth/20, Window.gameWidth/20);
 
         handler = new ObjectList<>();
         handler.add(new Background(player));
-        handler.add(player);
         handler.addAll(universe.systems.get(player.getCurrentLocation()).entities);
+        handler.add(player);
+
+        SFXPlayer music = new SFXPlayer("res/Music/Stellardrone - Breathe In The Light.wav", true);
+        //music.play();
 
         thread = new Thread(this::start);
         thread.start();
@@ -77,8 +81,9 @@ public class Game extends JComponent {
 
     public void rebuildHandler() {
         ObjectList<GameObject> temp = new ObjectList<>();
-        temp.add(player);
+        temp.add(handler.get(0));
         temp.addAll(universe.systems.get(player.getCurrentLocation()).entities);
+        temp.add(player);
         handler = temp;
     }
 
