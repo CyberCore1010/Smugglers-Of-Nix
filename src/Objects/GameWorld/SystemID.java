@@ -1,6 +1,8 @@
 package Objects.GameWorld;
 
+import Init.Window;
 import Objects.GameObjects.GameObject;
+import Objects.GameObjects.Station;
 import Objects.GameObjects.Test;
 import Objects.Utility.ObjectList;
 
@@ -8,7 +10,7 @@ public enum SystemID {
     //Close locations
     Sol(()->{
         ObjectList<GameObject> objects = new ObjectList<>();
-
+        objects.add(new Station(0, 0, Window.gameWidth/2, Window.gameWidth/2, "Sol"));
         return objects;
     }),
     Fortuna(()->{

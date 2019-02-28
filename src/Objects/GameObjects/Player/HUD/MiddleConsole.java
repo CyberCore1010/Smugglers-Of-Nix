@@ -2,7 +2,6 @@ package Objects.GameObjects.Player.HUD;
 
 import Init.Window;
 import Objects.GameObjects.Properties.Drawable;
-import Objects.Utility.Maths.Maths;
 
 import java.awt.*;
 

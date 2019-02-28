@@ -22,9 +22,9 @@ import java.awt.image.BufferedImage;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static Objects.GameObjects.ObjectID.station;
+
 public class Player extends GameObject implements Physics{
-    public Vector2D position;
-    public Vector2D midPos;
     public Vector2D directionUnitVector;
 
     public int maxHealth;
@@ -38,8 +38,7 @@ public class Player extends GameObject implements Physics{
     private Vector2D velocity;
     private Vector2D resultantForce;
 
-    private float width, height;
-    private float rotation = 1;
+    private double rotation = 1;
     private double mouseAngle;
     private boolean turning;
 
@@ -64,6 +63,10 @@ public class Player extends GameObject implements Physics{
 
     private ObjectMap<ComponentID, Component> components;
     private HUD hud;
+
+    public boolean canDock = true;
+    private boolean docking = false;
+    public boolean docked = false;
 
     public Player(float x, float y, float width, float height) {
         super(ObjectID.player);
@@ -172,16 +175,27 @@ public class Player extends GameObject implements Physics{
     public void update() {
         resultantForce.set(0, 0);
 
-        if(!jumping && !chargingJump) {
-            Vector2D mousePoint = Window.getInstance().getMousePoint();
-            mouseAngle = midPos.polarAngle(mousePoint);
-            followMouse();
-            keyboard();
-        } else {
-            followMouse();
-            applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
+        if(!docked) {
+            if(!jumping && !chargingJump && !docking) {
+                for(GameObject object : Game.getInstance().handler) {
+                    if(object.id == ObjectID.station) {
+                        canDock = Math.abs(midPos.x - object.midPos.x) < object.width/2 &&
+                                Math.abs(midPos.y - object.midPos.y) < object.height/2;
+                    }
+                }
+                Vector2D mousePoint = Window.getInstance().getMousePoint();
+                mouseAngle = midPos.polarAngle(mousePoint);
+                followMouse();
+                keyboard();
+            } else if(docking) {
+                followMouse();
+                dockingManeuver();
+            } else {
+                followMouse();
+                applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
+            }
+            movement();
         }
-        movement();
 
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
@@ -241,6 +255,14 @@ public class Player extends GameObject implements Physics{
             }
             enginesOn = false;
         }
+
+        if(canDock) {
+            if(KeyHandler.isKeyPressed(Keys.home)) {
+                canDock = false;
+                docking = true;
+                velocity.set(0, 0);
+            }
+        }
     }
 
     private void movement() {
@@ -264,16 +286,44 @@ public class Player extends GameObject implements Physics{
         midPos = midPos.add(velocity);
     }
 
+    private void dockingManeuver() {
+        for(GameObject object : Game.getInstance().handler) {
+            if(object.id == station) {
+                mouseAngle = midPos.polarAngle(object.midPos);
+
+                if(Math.abs(rotation - mouseAngle) < 0.01) {
+                    rotation = mouseAngle;
+                    if(Math.abs(midPos.x - object.midPos.x) < 0.1 && Math.abs(midPos.y - object.midPos.y) < 0.1) {
+                        enginesOn = false;
+                        thrust.stop();
+                        midPos = object.midPos;
+                        position.set(midPos.x-width/2, midPos.y-height/2);
+
+                        docking = false;
+                        docked = true;
+                    } else {
+                        if(!thrust.getClip().isActive()) {
+                            thrust.play();
+                        }
+                        enginesOn = true;
+                        position = position.add(directionUnitVector);
+                        midPos = midPos.add(directionUnitVector);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void applyForce(Vector2D force) {
         resultantForce = resultantForce.add(force);
     }
 
-    public void setRotation(float rotation){
+    public void setRotation(double rotation){
         this.rotation = rotation;
     }
 
-    public float getRotation(){
+    public double getRotation(){
         return rotation;
     }
 

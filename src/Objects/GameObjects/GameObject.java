@@ -2,11 +2,16 @@ package Objects.GameObjects;
 
 import Init.Camera;
 import Objects.GameObjects.Properties.Drawable;
+import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
 
 public abstract class GameObject {
     public ObjectID id;
+
+    public Vector2D position;
+    public Vector2D midPos;
+    public float width, height;
 
     public GameObject(ObjectID id) {
         this.id = id;

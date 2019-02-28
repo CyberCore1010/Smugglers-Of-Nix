@@ -14,5 +14,7 @@ public enum Keys {
     num9,
     enter,
 
+    home,
+
     any
 }

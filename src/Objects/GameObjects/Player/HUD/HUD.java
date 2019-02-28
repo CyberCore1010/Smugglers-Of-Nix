@@ -13,11 +13,13 @@ public class HUD {
     Player player;
 
     Color textColor, opaqueHudColor, lightHudColor, darkHudColor;
-    Font font;
+    private Font font;
     SFXPlayer hover1, hover2;
 
     private MiddleConsole middleConsole;
     private RightConsole rightConsole;
+
+    private StarPortOS starPortOS;
 
     public HUD(Player player) {
         this.player = player;
@@ -33,19 +35,38 @@ public class HUD {
 
         middleConsole = new MiddleConsole(this);
         rightConsole = new RightConsole(this);
+
+        starPortOS = new StarPortOS(this);
     }
 
     public void update() {
-        middleConsole.update();
-        rightConsole.update();
+        if(player.docked) {
+            starPortOS.update();
+        } else {
+            middleConsole.update();
+            rightConsole.update();
+            starPortOS.playJingle = true;
+        }
     }
 
     public void render(Graphics2D g2d) {
         g2d.setStroke(new BasicStroke(3));
         g2d.setFont(font);
 
-        draw(middleConsole.getGraphics(), g2d);
-        draw(rightConsole.getGraphics(), g2d);
+        if(!player.docked) {
+            draw(middleConsole.getGraphics(), g2d);
+            draw(rightConsole.getGraphics(), g2d);
+        }
+
+        if(player.canDock) {
+            Drawable dockPrompt = (g2) -> {
+                g2.setColor(textColor);
+                g2.drawString("Press [HOME] to dock", -95, -120);
+            };
+            draw(dockPrompt, g2d);
+        } else if(player.docked) {
+            draw(starPortOS.getGraphics(), g2d);
+        }
     }
 
     private void draw(Drawable item, Graphics2D g2d){

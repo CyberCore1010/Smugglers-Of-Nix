@@ -27,6 +27,9 @@ public class KeyHandler extends KeyAdapter {
         keyMap.put(Keys.num8, false);
         keyMap.put(Keys.num9, false);
         keyMap.put(Keys.enter, false);
+
+        //Misc
+        keyMap.put(Keys.home, false);
     }
 
     public static boolean isKeyPressed(Keys key) {
@@ -84,6 +87,9 @@ public class KeyHandler extends KeyAdapter {
         if(key == KeyEvent.VK_ENTER) {
             keyMap.replace(Keys.enter, true);
         }
+        if(key == KeyEvent.VK_HOME) {
+            keyMap.replace(Keys.home, true);
+        }
     }
 
     @Override
@@ -122,6 +128,9 @@ public class KeyHandler extends KeyAdapter {
         }
         if(key == KeyEvent.VK_ENTER) {
             keyMap.replace(Keys.enter, false);
+        }
+        if(key == KeyEvent.VK_HOME) {
+            keyMap.replace(Keys.home, false);
         }
     }
 }
