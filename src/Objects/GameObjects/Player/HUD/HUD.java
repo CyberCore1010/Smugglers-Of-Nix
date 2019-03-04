@@ -3,6 +3,7 @@ package Objects.GameObjects.Player.HUD;
 import Init.CameraID;
 import Init.Game;
 import Init.Window;
+import Objects.GameObjects.Player.HUD.StarPortOS.StarPortOS;
 import Objects.GameObjects.Player.Player;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.SFXPlayer;
@@ -12,12 +13,13 @@ import java.awt.*;
 public class HUD {
     Player player;
 
-    Color textColor, opaqueHudColor, lightHudColor, darkHudColor;
+    public Color opaqueHudColor, darkHudColor;
+    Color textColor, lightHudColor;
     private Font font;
-    SFXPlayer hover1, hover2;
+    SFXPlayer hover1, hover2, click1, click2, ambiance;
 
-    private MiddleConsole middleConsole;
-    private RightConsole rightConsole;
+    private Console middleConsole;
+    private Console rightConsole;
 
     private StarPortOS starPortOS;
 
@@ -32,6 +34,10 @@ public class HUD {
 
         hover1 = new SFXPlayer("res/SFX/UI/Hover 1.wav", false);
         hover2 = new SFXPlayer("res/SFX/UI/Hover 2.wav", false);
+        click1 = new SFXPlayer("res/SFX/UI/Click 1.wav", false);
+        click2 = new SFXPlayer("res/SFX/UI/Click 2.wav", false);
+
+        ambiance = new SFXPlayer("res/SFX/Ambiance.wav", false);
 
         middleConsole = new MiddleConsole(this);
         rightConsole = new RightConsole(this);
@@ -42,10 +48,15 @@ public class HUD {
     public void update() {
         if(player.docked) {
             starPortOS.update();
+            ambiance.stop();
         } else {
+            if(!ambiance.getClip().isActive()) {
+                ambiance.play();
+            }
             middleConsole.update();
             rightConsole.update();
             starPortOS.playJingle = true;
+            starPortOS.ambiance.stop();
         }
     }
 

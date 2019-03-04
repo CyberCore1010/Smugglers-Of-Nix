@@ -33,6 +33,7 @@ public class Player extends GameObject implements Physics{
     public int shield;
     public int fuel;
     public int maxFuel;
+    public int credits = 1000;
 
     private double mass;
     private Vector2D velocity;
@@ -133,6 +134,7 @@ public class Player extends GameObject implements Physics{
     }
 
     public void jumpTo(SystemID location) {
+        canDock = false;
         chargingJump = true;
         jumpSound.play();
         timer = new Timer();
@@ -260,7 +262,6 @@ public class Player extends GameObject implements Physics{
             if(KeyHandler.isKeyPressed(Keys.home)) {
                 canDock = false;
                 docking = true;
-                velocity.set(0, 0);
             }
         }
     }
@@ -270,8 +271,8 @@ public class Player extends GameObject implements Physics{
             if(engineTime > 10) {
                 engineTime = 0;
                 engineIndex++;
-                if(engineIndex >= engineSprites.size()) {
-                    engineIndex = 0;
+                if(engineIndex >= engineSprites.size()-1) {
+                    engineIndex -= engineSprites.size()-1;
                 }
             } else {
                 engineTime++;
@@ -293,7 +294,7 @@ public class Player extends GameObject implements Physics{
 
                 if(Math.abs(rotation - mouseAngle) < 0.01) {
                     rotation = mouseAngle;
-                    if(Math.abs(midPos.x - object.midPos.x) < 0.1 && Math.abs(midPos.y - object.midPos.y) < 0.1) {
+                    if(Math.abs(midPos.x - object.midPos.x) < 10 && Math.abs(midPos.y - object.midPos.y) < 10) {
                         enginesOn = false;
                         thrust.stop();
                         midPos = object.midPos;
@@ -306,8 +307,8 @@ public class Player extends GameObject implements Physics{
                             thrust.play();
                         }
                         enginesOn = true;
-                        position = position.add(directionUnitVector);
-                        midPos = midPos.add(directionUnitVector);
+                        position = position.add(directionUnitVector.scale(2));
+                        midPos = midPos.add(directionUnitVector.scale(2));
                     }
                 }
             }
@@ -329,22 +330,25 @@ public class Player extends GameObject implements Physics{
 
     @Override
     public void render(Graphics2D g2d) {
-        Drawable drawable = (g) -> {
-            if(jumping) {
-                g.setPaint(new TexturePaint(jump, new Rectangle2D.Double(-position.x*5, -position.y*5, Init.Window.gameWidth*2, Init.Window.gameHeight*2)));
-                g.fillRect((int)Game.getInstance().cameraMap.get(CameraID.game).getX(), (int)Game.getInstance().cameraMap.get(CameraID.game).getY(), Init.Window.gameWidth, Window.gameHeight);
-            }
+        if(!docked) {
+            Drawable drawable = (g) -> {
+                if(jumping) {
+                    g.setPaint(new TexturePaint(jump, new Rectangle2D.Double(-position.x*5, -position.y*5, Init.Window.gameWidth*2, Init.Window.gameHeight*2)));
+                    g.fillRect((int)Game.getInstance().cameraMap.get(CameraID.game).getX(), (int)Game.getInstance().cameraMap.get(CameraID.game).getY(), Init.Window.gameWidth, Window.gameHeight);
+                }
 
-            AffineTransform newTransform = g.getTransform();
-            newTransform.rotate(getRotation(), midPos.x, midPos.y);
-            g.setTransform(newTransform);
-            if(enginesOn || chargingJump || jumping) {
-                g.drawImage(engineSprites.get(engineIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
-            }
-            g.drawImage(playerSprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
-        };
+                AffineTransform newTransform = g.getTransform();
+                newTransform.rotate(getRotation(), midPos.x, midPos.y);
+                g.setTransform(newTransform);
+                if(enginesOn || chargingJump || jumping) {
+                    g.drawImage(engineSprites.get(engineIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+                }
+                g.drawImage(playerSprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+            };
 
-        renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
+            renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
+        }
+
         hud.render(g2d);
     }
 }

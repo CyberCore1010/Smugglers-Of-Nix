@@ -9,6 +9,7 @@ public abstract class Console {
     Console(HUD hud) {
         this.hud = hud;
     }
+
     abstract void update();
     abstract Drawable getGraphics();
     void hoverSound() {
@@ -17,6 +18,14 @@ public abstract class Console {
             hud.hover1.play();
         } else {
             hud.hover2.play();
+        }
+    }
+    void clickSound() {
+        int index = (int)Math.round(Math.random());
+        if(index == 0) {
+            hud.click1.play();
+        } else {
+            hud.click2.play();
         }
     }
 }

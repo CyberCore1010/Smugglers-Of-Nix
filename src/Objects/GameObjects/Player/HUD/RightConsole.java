@@ -101,6 +101,7 @@ class RightConsole extends Console{
     }
 
     private void activateJump() {
+        clickSound();
         KeyHandler.forceKey(Keys.enter, false);
         ObjectList<SystemID> list = new ObjectList<>();
         if(leftColumn) {

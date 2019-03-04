@@ -2,6 +2,7 @@ package Init;
 
 import Objects.Utility.KeyHandler;
 import Objects.Utility.Maths.Vector2D;
+import Objects.Utility.MouseHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,6 +40,7 @@ public class Window {
                 mousePoint.y = temp.y;
                 }
         });
+        frame.addMouseListener(new MouseHandler());
         instance = this;
     }
 
