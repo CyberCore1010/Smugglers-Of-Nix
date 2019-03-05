@@ -2,6 +2,8 @@ package Objects.GameObjects.Player.HUD.StarPortOS;
 
 import Init.Window;
 import Objects.GameObjects.Player.HUD.HUD;
+import Objects.GameObjects.Player.HUD.StarPortOS.MissionMenu.MissionMenu;
+import Objects.GameObjects.Player.Missions.Mission;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.BufferedImageLoader;
 import Objects.Utility.SFXPlayer;
@@ -11,9 +13,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class StarPortOS {
-    HUD hud;
+    public HUD hud;
 
-    int x, y, width, height;
+    public int x, y, width, height;
 
     public boolean playJingle = true;
 
@@ -24,7 +26,7 @@ public class StarPortOS {
     public SFXPlayer ambiance;
 
     TabType currentTab;
-    private Tab menu, info, mission, outfitting;
+    private Tab menu, info, missionMenu, outfitting;
 
     public StarPortOS(HUD hud) {
         this.hud = hud;
@@ -42,11 +44,11 @@ public class StarPortOS {
         splashScreen2 = bufferedImageLoader.loadImage("/Sprites/UI/Starport2.png");
 
         menu = new Menu(this);
+        missionMenu = new MissionMenu( this);
     }
 
     public void update() {
         if(!ambiance.getClip().isActive()) ambiance.play();
-        updateSplashScreen();
 
         menu.update();
 
@@ -54,16 +56,21 @@ public class StarPortOS {
             case info:
                 break;
             case mission:
+                missionMenu.update();
                 break;
             case outfitting:
                 break;
         }
+
+        updateSplashScreen();
     }
 
     private void updateSplashScreen() {
         if(playJingle) {
             SplashScreenTime = 0;
             SplashScreenOffset = 0;
+            MissionMenu missionMenu = (MissionMenu)this.missionMenu;
+            missionMenu.generate();
             playJingle = false;
             jingle.play();
         }
@@ -93,19 +100,20 @@ public class StarPortOS {
 
             draw(menu.getGraphics(), g2);
 
-            renderSplashScreen(g2);
-
-            g2.setColor(hud.opaqueHudColor);
-            g2.drawRect(x, y, width, height);
-
             switch (currentTab) {
                 case info:
                     break;
                 case mission:
+                    draw(missionMenu.getGraphics(), g2);
                     break;
                 case outfitting:
                     break;
             }
+
+            renderSplashScreen(g2);
+
+            g2.setColor(hud.opaqueHudColor);
+            g2.drawRect(x, y, width, height);
         };
     }
 

@@ -2,6 +2,10 @@ package Objects.GameObjects.Player.HUD;
 
 import Init.Window;
 import Objects.GameObjects.Player.Components.ComponentID;
+import Objects.GameObjects.Player.Missions.Bounty;
+import Objects.GameObjects.Player.Missions.Empty;
+import Objects.GameObjects.Player.Missions.Mission;
+import Objects.GameObjects.Player.Missions.Tutorial;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.GameWorld.SystemID;
 import Objects.Utility.KeyHandler;
@@ -31,7 +35,7 @@ class RightConsole extends Console{
         width = Window.gameWidth/5;
         height = Window.gameHeight/5;
 
-        headingOption1 = true;
+        headingOption1 = false;
 
         leftColumn = true;
         row = 0;
@@ -177,7 +181,7 @@ class RightConsole extends Console{
             if(headingOption1) {
                 jumpdriveMenu(g2);
             } else {
-                g2.drawString("Not implemented yet", x+width/4+width/40, y+height/2+height/15);
+                missionMenu(g2);
             }
 
             if(hud.player.chargingJump) {
@@ -203,6 +207,39 @@ class RightConsole extends Console{
         g2.drawRect(x+width/2, y, width/2, height/8);
         g2.setColor(hud.textColor);
         g2.drawString("Current bounty", x+width/2+width/13, y+height/11);
+    }
+
+    private void missionMenu(Graphics2D g2) {
+        g2.setColor(hud.opaqueHudColor);
+        g2.drawRect(x, y, width, (height/7)*2);
+        g2.setColor(hud.textColor);
+        g2.drawString(hud.player.currentMission.name,x+width/30, (y+height/5)+(height/30));
+
+        ObjectList<String> description = hud.player.currentMission.fixDescription(36, true);
+        int yIndex = (y+height/5)+(height/5);
+        for(String string : description) {
+            g2.drawString(string, x+width/30, yIndex);
+            yIndex += g2.getFont().getSize()+(g2.getFont().getSize()/2);
+        }
+
+        if(hud.player.currentMission.getClass() == Bounty.class) {
+            Bounty bounty = (Bounty)hud.player.currentMission;
+            g2.drawString("System: "+bounty.systemID.toString(), x+width/30, y+height-((height/25)*5));
+        }
+
+        if(!(hud.player.currentMission.getClass() == Empty.class)) {
+            g2.setColor(hud.opaqueHudColor);
+            g2.drawRect(x, y+height-(height/7), width, height/7);
+            g2.setColor(hud.textColor);
+            g2.drawString("Reward: "+hud.player.currentMission.reward, x+width/30, y+height-(height/25));
+            if(!(hud.player.currentMission.getClass() == Tutorial.class)) {
+                g2.setColor(hud.opaqueHudColor);
+                g2.drawRect(x+width/2, y+height-(height/7), width/2, height/7);
+                g2.setColor(hud.textColor);
+                Bounty bounty = (Bounty)hud.player.currentMission;
+                g2.drawString("Ship count: "+ bounty.shipCount, x+width/2+g2.getFont().getSize(), y+height-(height/25));
+            }
+        }
     }
 
     private void jumpdriveMenu(Graphics2D g2) {

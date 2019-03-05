@@ -6,11 +6,11 @@ import Objects.GameObjects.ObjectID;
 import Objects.GameObjects.Player.Player;
 import Objects.Utility.ObjectList;
 
-public class Systems {
+public class System {
     public ObjectList<GameObject> entities;
     private SystemID id;
 
-    Systems(SystemID system){
+    System(SystemID system){
         id = system;
         entities = system.getInitial();
     }

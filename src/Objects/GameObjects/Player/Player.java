@@ -3,7 +3,11 @@ package Objects.GameObjects.Player;
 import Init.CameraID;
 import Init.Game;
 import Init.Window;
+import Objects.GameObjects.NPC.Enemy.Enemy;
+import Objects.GameObjects.NPC.NPC;
 import Objects.GameObjects.Player.HUD.HUD;
+import Objects.GameObjects.Player.Missions.Mission;
+import Objects.GameObjects.Player.Missions.Tutorial;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.ObjectID;
@@ -33,7 +37,8 @@ public class Player extends GameObject implements Physics{
     public int shield;
     public int fuel;
     public int maxFuel;
-    public int credits = 1000;
+    public int credits = 0;
+    public Mission currentMission;
 
     private double mass;
     private Vector2D velocity;
@@ -125,6 +130,7 @@ public class Player extends GameObject implements Physics{
         shield = maxShield;
         fuel = 100;
         maxFuel = fuel;
+        currentMission = new Tutorial();
 
         hud = new HUD(this);
     }
@@ -188,7 +194,7 @@ public class Player extends GameObject implements Physics{
                 Vector2D mousePoint = Window.getInstance().getMousePoint();
                 mouseAngle = midPos.polarAngle(mousePoint);
                 followMouse();
-                keyboard();
+                input();
             } else if(docking) {
                 followMouse();
                 dockingManeuver();
@@ -202,9 +208,11 @@ public class Player extends GameObject implements Physics{
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
 
+        currentMission.update();
         hud.update();
     }
 
+    @SuppressWarnings("Duplicates")
     private void followMouse() {
         double facingAngle = midPos.polarAngle(midPos.add(directionUnitVector));
 
@@ -232,7 +240,7 @@ public class Player extends GameObject implements Physics{
         }
     }
 
-    private void keyboard() {
+    private void input() {
         if(KeyHandler.isKeyPressed(Keys.W)) {
             if(!enginesOn) {
                 speedUp.play();
@@ -262,6 +270,15 @@ public class Player extends GameObject implements Physics{
             if(KeyHandler.isKeyPressed(Keys.home)) {
                 canDock = false;
                 docking = true;
+            }
+        }
+
+        if(MouseHandler.isMouseClicked(MouseButtons.LMB)) {
+            for(GameObject object : Game.getInstance().handler) {
+                if(object.id == ObjectID.enemy) {
+                    NPC npc = (NPC)object;
+                    npc.takeDamage((int)(getStat(ComponentID.weaponLeft)[0]+getStat(ComponentID.weaponRight)[0]));
+                }
             }
         }
     }
@@ -294,6 +311,7 @@ public class Player extends GameObject implements Physics{
 
                 if(Math.abs(rotation - mouseAngle) < 0.01) {
                     rotation = mouseAngle;
+                    velocity = new Vector2D();
                     if(Math.abs(midPos.x - object.midPos.x) < 10 && Math.abs(midPos.y - object.midPos.y) < 10) {
                         enginesOn = false;
                         thrust.stop();

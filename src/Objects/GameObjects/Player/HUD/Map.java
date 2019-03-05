@@ -3,6 +3,7 @@ package Objects.GameObjects.Player.HUD;
 import Init.Game;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.ObjectID;
+import Objects.Utility.Maths.Maths;
 import Objects.Utility.Maths.Vector2D;
 import Objects.Utility.ObjectList;
 import Objects.Utility.ObjectMap;
@@ -33,11 +34,12 @@ public class Map {
         for(GameObject gameObject : Game.getInstance().handler) {
             try {
                 double distance = (hud.player.midPos.dist(gameObject.midPos))/mapReach;
-                if(distance < (width/2)-5) {
-                    Vector2D position = midPos.add(new Vector2D((gameObject.midPos.x-hud.player.midPos.x)/mapReach,
-                            (gameObject.midPos.y-hud.player.midPos.y)/mapReach));
-                    newBlips.put(position, gameObject.id);
+                Vector2D position = midPos.add(new Vector2D((gameObject.midPos.x-hud.player.midPos.x)/mapReach,
+                        (gameObject.midPos.y-hud.player.midPos.y)/mapReach));
+                if(distance > (width/2)-5) {
+                    position = midPos.add(midPos.getDirectionVector(position).getUnitVector().scale((width/2)-5));
                 }
+                newBlips.put(position, gameObject.id);
             } catch (Exception ignored) {}
         }
         blips = newBlips;
@@ -77,5 +79,7 @@ public class Map {
 
             g2.fillRect((int)blip.x-2, (int)blip.y-2, 4, 4);
         }
+        g2.setColor(hud.opaqueHudColor);
+        g2.fillRect((int)midPos.x-2, (int)midPos.y-2, 4, 4);
     }
 }

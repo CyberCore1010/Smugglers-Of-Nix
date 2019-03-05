@@ -17,7 +17,11 @@ public class MouseHandler implements MouseListener {
     }
 
     public static boolean isMouseClicked(MouseButtons buttons) {
-        return buttonMap.get(buttons);
+        if(buttonMap != null) {
+            return buttonMap.get(buttons);
+        } else {
+            return false;
+        }
     }
 
     public static void forceMouseClick(MouseButtons button, boolean forcedBool) {
@@ -34,9 +38,9 @@ public class MouseHandler implements MouseListener {
         if(e.getButton() == MouseEvent.BUTTON1) {
             buttonMap.replace(MouseButtons.LMB, true);
         } else if(e.getButton() == MouseEvent.BUTTON2) {
-            buttonMap.replace(MouseButtons.RMB, true);
-        } else {
             buttonMap.replace(MouseButtons.MMB, true);
+        } else {
+            buttonMap.replace(MouseButtons.RMB, true);
         }
     }
 
@@ -45,9 +49,9 @@ public class MouseHandler implements MouseListener {
         if(e.getButton() == MouseEvent.BUTTON1) {
             buttonMap.replace(MouseButtons.LMB, false);
         } else if(e.getButton() == MouseEvent.BUTTON2) {
-            buttonMap.replace(MouseButtons.RMB, false);
-        } else {
             buttonMap.replace(MouseButtons.MMB, false);
+        } else {
+            buttonMap.replace(MouseButtons.RMB, false);
         }
     }
 

@@ -10,14 +10,14 @@ public class Button extends InteractivePanel {
     private String text;
 
 
-    Button(int x, int y, int width, int height, String text, Effect effect) {
+    public Button(int x, int y, int width, int height, String text, Effect effect) {
         super(x, y, width, height);
         this.text = text;
         this.effect = effect;
     }
 
     @Override
-    Drawable getGraphics() {
+    public Drawable getGraphics() {
         return (g2) -> {
             g2.setColor(new Color(195, 97, 31));
             if(hover) {

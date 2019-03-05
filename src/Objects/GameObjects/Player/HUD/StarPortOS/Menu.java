@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Menu extends Tab {
-    private StarPortOS starPortOS;
     private int x, y, width, height;
     private InteractivePanel infoButton, missionBoardButton, outfittingButton, exitButton;
 

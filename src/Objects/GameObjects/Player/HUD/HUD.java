@@ -11,10 +11,11 @@ import Objects.Utility.SFXPlayer;
 import java.awt.*;
 
 public class HUD {
-    Player player;
+    public Player player;
 
     public Color opaqueHudColor, darkHudColor;
-    Color textColor, lightHudColor;
+    public Color textColor;
+    Color lightHudColor;
     private Font font;
     SFXPlayer hover1, hover2, click1, click2, ambiance;
 

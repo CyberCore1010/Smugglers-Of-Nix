@@ -20,8 +20,7 @@ public class Game extends JComponent {
     public Window window;
     private static Game game;
 
-    //testing
-    private Universe universe;
+    public Universe universe;
     public Player player;
     public ObjectList<GameObject> handler;
 

@@ -8,14 +8,14 @@ import Objects.Utility.MouseHandler;
 import Objects.Utility.SFXPlayer;
 
 public abstract class InteractivePanel {
-    int x, y ,width, height;
-    boolean hover;
-    Effect effect;
+    public int x, y ,width, height;
+    public boolean hover;
+    public Effect effect;
 
     private SFXPlayer hoverSound1, hoverSound2, clickSound1, clickSound2;
     private Boolean hoverSounded = false, clickSounded = false;
 
-    InteractivePanel(int x, int y, int width, int height) {
+    public InteractivePanel(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -30,7 +30,7 @@ public abstract class InteractivePanel {
         clickSound2 = new SFXPlayer("res/SFX/UI/Click 2.wav", false);
     }
 
-    void update() {
+    public void update() {
         hover = true;
         if(Window.getInstance().mousePoint.x > x+Window.gameWidth/2 && Window.getInstance().mousePoint.x < x+Window.gameWidth/2+width) {
             if(Window.getInstance().mousePoint.y > y+Window.gameHeight/2 && Window.getInstance().mousePoint.y < y+Window.gameHeight/2+height) {
@@ -69,5 +69,5 @@ public abstract class InteractivePanel {
         }
     }
 
-    abstract Drawable getGraphics();
+    public abstract Drawable getGraphics();
 }
