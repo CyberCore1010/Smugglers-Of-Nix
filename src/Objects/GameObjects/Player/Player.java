@@ -3,6 +3,8 @@ package Objects.GameObjects.Player;
 import Init.CameraID;
 import Init.Game;
 import Init.Window;
+import Objects.GameObjects.Effects.Explosion;
+import Objects.GameObjects.Effects.Projectile;
 import Objects.GameObjects.NPC.Enemy.Enemy;
 import Objects.GameObjects.NPC.NPC;
 import Objects.GameObjects.Player.HUD.HUD;
@@ -21,6 +23,7 @@ import Objects.Utility.Maths.Vector2D;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Timer;
@@ -29,7 +32,6 @@ import java.util.TimerTask;
 import static Objects.GameObjects.ObjectID.station;
 
 public class Player extends GameObject implements Physics{
-    public Vector2D directionUnitVector;
 
     public int maxHealth;
     public int health;
@@ -40,10 +42,13 @@ public class Player extends GameObject implements Physics{
     public int credits = 0;
     public Mission currentMission;
 
-    private double mass;
-    private Vector2D velocity;
-    private Vector2D resultantForce;
+    private boolean dead = false;
 
+    private double mass = 200;
+    private Vector2D velocity = new Vector2D();
+    private Vector2D resultantForce = new Vector2D();
+
+    public Vector2D directionUnitVector = new Vector2D(0.01, 0.01);
     private double rotation = 1;
     private double mouseAngle;
     private boolean turning;
@@ -51,19 +56,25 @@ public class Player extends GameObject implements Physics{
     private ObjectList<BufferedImage> playerSprites;
     private ObjectList<BufferedImage> engineSprites;
     private int spriteIndex = 0;
+    private boolean weaponOut = false;
     private int weaponOutTime = 0;
+    private int weaponCooldown = 0;
     private boolean enginesOn = false;
     private int engineIndex = 0;
     private int engineTime = 0;
 
-    private SFXPlayer speedUp;
-    private SFXPlayer speedDown;
-    private SFXPlayer thrust;
-    private SFXPlayer turn;
-    public SFXPlayer jumpSound;
+    private int cameraZoomTime = 0;
 
-    private SystemID currentLocation;
-    public boolean jumping, chargingJump;
+    private SFXPlayer speedUp = new SFXPlayer("res/SFX/Ship/Speed up.wav", false);
+    private SFXPlayer speedDown = new SFXPlayer("res/SFX/Ship/Speed down.wav", false);
+    private SFXPlayer thrust = new SFXPlayer("res/SFX/Ship/Thrust.wav", true);
+    private SFXPlayer turn = new SFXPlayer("res/SFX/Ship/Turn.wav", true);
+    public SFXPlayer jumpSound = new SFXPlayer("res/SFX/Ship/Frame shift.wav", false);
+    private SFXPlayer deployWeapons = new SFXPlayer("res/SFX/Ship/Deploy weapons.wav", false);
+    private SFXPlayer stowWeapons = new SFXPlayer("res/SFX/Ship/Stow weapons.wav", false);
+
+    private SystemID currentLocation = SystemID.Sol;
+    public boolean jumping = false, chargingJump = false;
     private BufferedImage jump;
     public Timer timer;
 
@@ -78,10 +89,6 @@ public class Player extends GameObject implements Physics{
         super(ObjectID.player);
         position = new Vector2D(x, y);
         midPos = new Vector2D(x+(width/2), y+height/2);
-        directionUnitVector = new Vector2D(0.01, 0.01);
-        mass = 200;
-        velocity = new Vector2D();
-        resultantForce = new Vector2D(0,0);
 
         this.width = width;
         this.height = height;
@@ -105,15 +112,6 @@ public class Player extends GameObject implements Physics{
             spriteX += 500;
         }
 
-        thrust = new SFXPlayer("res/SFX/Ship/Thrust.wav", true);
-        speedUp = new SFXPlayer("res/SFX/Ship/Speed up.wav", false);
-        speedDown = new SFXPlayer("res/SFX/Ship/Speed down.wav", false);
-        turn = new SFXPlayer("res/SFX/Ship/Turn.wav", true);
-        jumpSound = new SFXPlayer("res/SFX/Ship/Frame shift.wav", false);
-
-        currentLocation = SystemID.Sol;
-        chargingJump = false;
-        jumping = false;
         jump = bufferedImageLoader.loadImage("/Sprites/PlayerShip/jump.png");
 
         components = new ObjectMap<>();
@@ -183,33 +181,48 @@ public class Player extends GameObject implements Physics{
     public void update() {
         resultantForce.set(0, 0);
 
-        if(!docked) {
-            if(!jumping && !chargingJump && !docking) {
-                for(GameObject object : Game.getInstance().handler) {
-                    if(object.id == ObjectID.station) {
-                        canDock = Math.abs(midPos.x - object.midPos.x) < object.width/2 &&
-                                Math.abs(midPos.y - object.midPos.y) < object.height/2;
+        if(!dead) {
+            if(weaponCooldown > 0) weaponCooldown--;
+            if(cameraZoomTime > 0) cameraZoomTime--;
+
+            if(!docked) {
+                checkDead();
+                if(!jumping && !chargingJump && !docking) {
+                    for(GameObject object : Game.getInstance().handler) {
+                        if(object.id == ObjectID.station) {
+                            canDock = Math.abs(midPos.x - object.midPos.x) < object.width/2 &&
+                                    Math.abs(midPos.y - object.midPos.y) < object.height/2;
+                        }
                     }
+                    Vector2D mousePoint = Window.getInstance().getMousePoint();
+                    mouseAngle = midPos.polarAngle(mousePoint);
+                    followMouse();
+                    input();
+                } else if(docking) {
+                    followMouse();
+                    dockingManeuver();
+                } else {
+                    followMouse();
+                    applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
                 }
-                Vector2D mousePoint = Window.getInstance().getMousePoint();
-                mouseAngle = midPos.polarAngle(mousePoint);
-                followMouse();
-                input();
-            } else if(docking) {
-                followMouse();
-                dockingManeuver();
-            } else {
-                followMouse();
-                applyForce(directionUnitVector.scale(getStat(ComponentID.engine)[0]));
             }
-            movement();
+
+            currentMission.update();
+            hud.update();
         }
+
+        movement();
+        spriteUpdate();
 
         Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
         Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
+    }
 
-        currentMission.update();
-        hud.update();
+    private void checkDead() {
+        if(health <= 0) {
+            dead = true;
+            deathSequence();
+        }
     }
 
     @SuppressWarnings("Duplicates")
@@ -268,17 +281,43 @@ public class Player extends GameObject implements Physics{
 
         if(canDock) {
             if(KeyHandler.isKeyPressed(Keys.home)) {
+                new SFXPlayer("res/SFX/Ship/Docking request.wav", false).play();
                 canDock = false;
                 docking = true;
             }
         }
-
         if(MouseHandler.isMouseClicked(MouseButtons.LMB)) {
-            for(GameObject object : Game.getInstance().handler) {
-                if(object.id == ObjectID.enemy) {
-                    NPC npc = (NPC)object;
-                    npc.takeDamage((int)(getStat(ComponentID.weaponLeft)[0]+getStat(ComponentID.weaponRight)[0]));
+            if(weaponOut) {
+                if(spriteIndex == playerSprites.size()-1) {
+                    if(weaponCooldown == 0) {
+                        new SFXPlayer("res/SFX/Ship/Fire weapons.wav", false).play();
+                        Game.getInstance().universe.systems.get(Game.getInstance().player.currentLocation).entities.add(
+                                new Projectile(getStat(ComponentID.weaponLeft)[0], getLeftGunPos(), directionUnitVector.scale(20), true));
+                        Game.getInstance().universe.systems.get(Game.getInstance().player.currentLocation).entities.add(
+                                new Projectile(getStat(ComponentID.weaponRight)[0], getRightGunPos(), directionUnitVector.scale(20), false));
+                        Game.getInstance().rebuildHandler();
+                        weaponCooldown = 20;
+                    }
                 }
+            } else {
+                weaponOut = true;
+                deployWeapons.play();
+            }
+        }
+        if(MouseHandler.isMouseClicked(MouseButtons.RMB)) {
+            if(weaponOut) {
+                weaponOut = false;
+                stowWeapons.play();
+            }
+        }
+        if(MouseHandler.isMouseClicked(MouseButtons.MMB)) {
+            if(cameraZoomTime == 0) {
+                if (Game.getInstance().cameraMap.get(CameraID.game).getZoom() != 0.7)  {
+                    Game.getInstance().cameraMap.get(CameraID.game).setZoom(0.7);
+                } else {
+                    Game.getInstance().cameraMap.get(CameraID.game).setZoom(1);
+                }
+                cameraZoomTime = 10;
             }
         }
     }
@@ -302,6 +341,67 @@ public class Player extends GameObject implements Physics{
         velocity = velocity.add(acceleration);
         position = position.add(velocity);
         midPos = midPos.add(velocity);
+    }
+
+    private void spriteUpdate() {
+        if(weaponOut) {
+            if(spriteIndex < playerSprites.size()-1) {
+                if(weaponOutTime > 20) {
+                    weaponOutTime = 0;
+                    spriteIndex++;
+                }
+                weaponOutTime++;
+            }
+        } else {
+            if(spriteIndex > 0) {
+                if(weaponOutTime > 20) {
+                    weaponOutTime = 0;
+                    spriteIndex--;
+                }
+                weaponOutTime++;
+            }
+        }
+    }
+
+    public Vector2D getLeftGunPos() {
+        Vector2D offset = Vector2D.polar(directionUnitVector.angle()-0.5, width/3);
+
+        return midPos.add(offset);
+    }
+
+    public Vector2D getRightGunPos() {
+        Vector2D offset = Vector2D.polar(directionUnitVector.angle()+0.5, width/3);
+
+        return midPos.add(offset);
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+    }
+
+    private void deathSequence() {
+        Game.getInstance().universe.systems.get(getCurrentLocation()).addEntity(new Explosion((int)midPos.x, (int)midPos.y, (int)width/2, false, getCurrentLocation()));
+        Player player = this;
+
+        Timer start = new Timer();
+        Timer end = new Timer();
+        TimerTask startTask = new TimerTask() {
+            @Override
+            public void run() {
+
+            }
+        };
+        TimerTask endTask = new TimerTask() {
+            @Override
+            public void run() {
+                Game.getInstance().universe.systems.get(getCurrentLocation()).addEntity(new Explosion((int)midPos.x, (int)midPos.y, (int)width, true, getCurrentLocation()));
+                Game.getInstance().universe.systems.get(getCurrentLocation()).removeEntity(player);
+                start.cancel();
+            }
+        };
+
+        start.scheduleAtFixedRate(startTask, 0, 10);
+        end.schedule(endTask, (int)((Math.random() * 501) + 1000));
     }
 
     private void dockingManeuver() {
@@ -368,5 +468,15 @@ public class Player extends GameObject implements Physics{
         }
 
         hud.render(g2d);
+    }
+
+    @Override
+    public Rectangle2D getSquareBounds() {
+        return null;
+    }
+
+    @Override
+    public ObjectList<Line2D> getPolyBounds() {
+        return null;
     }
 }

@@ -5,8 +5,11 @@ import Init.Game;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.BufferedImageLoader;
 import Objects.Utility.Maths.Vector2D;
+import Objects.Utility.ObjectList;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Station extends GameObject{
@@ -42,5 +45,15 @@ public class Station extends GameObject{
         Drawable drawable = (g2) -> g2.drawImage(sprite, (int)position.x, (int)position.y, (int)width, (int)height, null);
 
         renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
+    }
+
+    @Override
+    public Rectangle2D getSquareBounds() {
+        return null;
+    }
+
+    @Override
+    public ObjectList<Line2D> getPolyBounds() {
+        return null;
     }
 }

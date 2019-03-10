@@ -33,12 +33,19 @@ public class Window {
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         frame.addKeyListener(new KeyHandler());
         frame.addMouseMotionListener(new MouseAdapter() {
-                @Override
-                public void mouseMoved(MouseEvent e) {
+            @Override
+            public void mouseDragged(MouseEvent e) {
                 Point temp = e.getPoint();
                 mousePoint.x = temp.x;
                 mousePoint.y = temp.y;
-                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Point temp = e.getPoint();
+                mousePoint.x = temp.x;
+                mousePoint.y = temp.y;
+            }
         });
         frame.addMouseListener(new MouseHandler());
         instance = this;

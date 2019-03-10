@@ -33,17 +33,20 @@ public class KeyHandler extends KeyAdapter {
     }
 
     public static boolean isKeyPressed(Keys key) {
-        if(key == Keys.any) {
-            for(Boolean value : keyMap.values()) {
-                if(value) return true;
+        try {
+            if(key == Keys.any) {
+                for(Boolean value : keyMap.values()) {
+                    if(value) return true;
+                }
             }
-        }
-        if(keyMap != null) {
-            return keyMap.get(key);
-        } else {
+            if(keyMap != null) {
+                return keyMap.get(key);
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
             return false;
         }
-
     }
 
     public static void forceKey(Keys key, boolean forcedBool) {

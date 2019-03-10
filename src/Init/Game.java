@@ -2,7 +2,9 @@ package Init;
 
 import Objects.GameObjects.Background;
 import Objects.GameObjects.GameObject;
+import Objects.GameObjects.NPC.Enemy.Enemy;
 import Objects.GameObjects.Player.Player;
+import Objects.GameWorld.SystemID;
 import Objects.GameWorld.Universe;
 import Objects.Utility.ObjectList;
 import Objects.Utility.ObjectMap;
@@ -36,9 +38,6 @@ public class Game extends JComponent {
         handler.add(new Background(player));
         handler.addAll(universe.systems.get(player.getCurrentLocation()).entities);
         handler.add(player);
-
-        SFXPlayer music = new SFXPlayer("res/Music/Stellardrone - Breathe In The Light.wav", true);
-        //music.play();
 
         thread = new Thread(this::start);
         thread.start();

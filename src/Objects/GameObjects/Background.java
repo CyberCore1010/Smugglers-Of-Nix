@@ -7,8 +7,10 @@ import Objects.GameObjects.Player.Player;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.GameWorld.SystemID;
 import Objects.Utility.BufferedImageLoader;
+import Objects.Utility.ObjectList;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
@@ -46,10 +48,20 @@ public class Background extends GameObject {
         };
         Drawable movingBack = (g)-> {
             g.setPaint(new TexturePaint(debris, new Rectangle2D.Double(0, 0, Window.gameWidth, Window.gameHeight)));
-            g.fillRect((int)player.midPos.x-Window.gameWidth/2, (int)player.midPos.y-Window.gameHeight/2, Window.gameWidth, Window.gameHeight);
+            g.fillRect((int)player.midPos.x-Window.gameWidth, (int)player.midPos.y-Window.gameHeight, Window.gameWidth*2, Window.gameHeight*2);
         };
 
         renderToCamera(staticBack, g2d , Game.getInstance().cameraMap.get(CameraID.screen));
         renderToCamera(movingBack, g2d , Game.getInstance().cameraMap.get(CameraID.game));
+    }
+
+    @Override
+    public Rectangle2D getSquareBounds() {
+        return null;
+    }
+
+    @Override
+    public ObjectList<Line2D> getPolyBounds() {
+        return null;
     }
 }

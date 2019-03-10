@@ -3,8 +3,11 @@ package Objects.GameObjects;
 import Init.Camera;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.Maths.Vector2D;
+import Objects.Utility.ObjectList;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 public abstract class GameObject {
     public ObjectID id;
@@ -19,6 +22,9 @@ public abstract class GameObject {
 
     public abstract void update();
     public abstract void render(Graphics2D g2d);
+
+    public abstract Rectangle2D getSquareBounds();
+    public abstract ObjectList<Line2D> getPolyBounds();
 
     //method for rendering the game object to a specific camera
     protected void renderToCamera(Drawable item, Graphics2D g2d, Camera camera){
