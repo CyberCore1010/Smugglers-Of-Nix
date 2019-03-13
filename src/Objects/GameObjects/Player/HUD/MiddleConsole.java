@@ -10,7 +10,7 @@ class MiddleConsole extends Console{
     MiddleConsole(HUD hud) {
         super(hud);
         x = -Window.gameWidth/4-Window.gameWidth/30;
-        y = (Window.gameHeight/2)-Window.gameHeight/10-40;
+        y = (Window.gameHeight/2)-Window.gameHeight/10-80;
         width = Window.gameWidth/2+Window.gameWidth/15;
         height = Window.gameHeight/10;
 
@@ -37,6 +37,7 @@ class MiddleConsole extends Console{
             map.draw(g2);
 
             float healthChunk = (width/5f)/hud.player.maxHealth;
+            g2.setColor(hud.darkHudColor);
             g2.fillRect(x+width/2+width/10, y+y/28, (int)(healthChunk*hud.player.maxHealth), height/3);
             g2.setColor(Color.DARK_GRAY);
             g2.fillRect(x+width/2+width/10, y+y/28, (int)(healthChunk*hud.player.health), height/3);
@@ -46,6 +47,7 @@ class MiddleConsole extends Console{
             g2.drawString("Hull integrity", x+width/2+width/7+width/100, y+y/10);
 
             float fuelChunk = (width/5f)/hud.player.maxFuel;
+            g2.setColor(hud.darkHudColor);
             g2.fillRect(x+width/2+width/10, y+height/2+height/15, (int)(fuelChunk*hud.player.maxFuel), height/3);
             g2.setColor(Color.BLUE);
             g2.fillRect(x+width/2+width/10, y+height/2+height/15, (int)(fuelChunk*hud.player.fuel), height/3);
@@ -53,6 +55,18 @@ class MiddleConsole extends Console{
             g2.drawRect(x+width/2+width/10, y+height/2+height/15, (int)(fuelChunk*hud.player.maxFuel), height/3);
             g2.setColor(hud.textColor);
             g2.drawString("Fuel", x+width/2+width/6+width/70, (int)(y+height/2+height/3.2));
+
+            double maxShieldSize = width/6;
+            g2.setColor(hud.darkHudColor);
+            g2.fillRect((int)(x+width-width/5.5), y+y/28, (int)(maxShieldSize), (int)(height/1.3));
+            g2.setColor(new Color(204,204,0, 200));
+            double shieldSize = maxShieldSize/hud.player.maxShield;
+            shieldSize = shieldSize*hud.player.shield;
+            g2.fillRect((int)(x+width-width/5.5), y+y/28, (int)(shieldSize), (int)(height/1.3));
+            g2.setColor(hud.opaqueHudColor);
+            g2.drawRect((int)(x+width-width/5.5), y+y/28, (int)(maxShieldSize), (int)(height/1.3));
+            g2.setColor(hud.textColor);
+            g2.drawString("Shield", x+width-width/8, y+height/2+g2.getFont().getSize()/2);
 
             g2.setComposite(old);
         };

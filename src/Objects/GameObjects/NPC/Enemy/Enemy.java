@@ -38,6 +38,8 @@ public class Enemy extends NPC implements Physics{
 
     private int weaponCooldown = 0;
 
+    private boolean attackState = true;
+
     public Enemy(SystemID systemID) {
         super(ObjectID.enemy);
 
@@ -69,6 +71,8 @@ public class Enemy extends NPC implements Physics{
 
     @Override
     public void update() {
+        updateShield();
+
         resultantForce = resultantForce.set(0, 0);
         if(!dead) {
             if(health <= 0) {
@@ -76,9 +80,13 @@ public class Enemy extends NPC implements Physics{
                 deathSequence();
             }
             if(detectPlayer()) {
+                checkState();
                 rotateToPlayer();
-                followPlayer();
-                shoot();
+                fly();
+                collisions(velocity);
+                if(attackState) {
+                    shoot();
+                }
             }
         }
         movement();
@@ -95,11 +103,31 @@ public class Enemy extends NPC implements Physics{
         return false;
     }
 
+    private void checkState() {
+        if(attackState) {
+            for(GameObject object : Game.getInstance().handler) {
+                if(object.id == ObjectID.player) {
+                    if(Math.abs(midPos.x-object.midPos.x) < Window.gameWidth/20 || Math.abs(midPos.y-object.midPos.y) < Window.gameWidth/20) {
+                        attackState = false;
+                    }
+                }
+            }
+        } else {
+            for(GameObject object : Game.getInstance().handler) {
+                if(object.id == ObjectID.player) {
+                    if(Math.abs(midPos.x-object.midPos.x) > Window.gameWidth/2 || Math.abs(midPos.y-object.midPos.y) > Window.gameWidth/2) {
+                        attackState = true;
+                    }
+                }
+            }
+        }
+    }
+
     @SuppressWarnings("Duplicates")
     private void rotateToPlayer() {
         Player player = Game.getInstance().player;
         double angle = midPos.angle(player.midPos);
-        if(health < 20) {
+        if(health < 10 || !attackState) {
             angle += Math.PI;
         }
 
@@ -129,7 +157,7 @@ public class Enemy extends NPC implements Physics{
         }
     }
 
-    private void followPlayer() {
+    private void fly() {
         applyForce(directionUnitVector.scale(10));
     }
 
@@ -210,17 +238,6 @@ public class Enemy extends NPC implements Physics{
                 midPos.x+width/5, midPos.y+height/3, midPos.x+width/3, midPos.y
         ));
 
-        for(Line2D line : returnList) {
-            Vector2D v1 = new Vector2D(line.getX1(), line.getY1());
-            v1.subtract(midPos);
-            v1.rotate(rotation);
-            v1.add(midPos);
-            Vector2D v2 = new Vector2D(line.getX2(), line.getY2());
-            v2.subtract(midPos);
-            v2.rotate(rotation);
-            v2.add(midPos);
-            line.setLine(v1.x, v1.y, v2.x, v2.y);
-        }
-        return returnList;
+        return Maths.rotatePolygon(returnList, midPos, rotation);
     }
 }

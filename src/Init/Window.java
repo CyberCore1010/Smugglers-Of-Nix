@@ -28,7 +28,7 @@ public class Window {
         frame.setSize(gameWidth, gameHeight);
 
         //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setUndecorated(true);
+        //frame.setUndecorated(true);
         frame.setVisible(true);
         frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         frame.addKeyListener(new KeyHandler());
@@ -36,15 +36,15 @@ public class Window {
             @Override
             public void mouseDragged(MouseEvent e) {
                 Point temp = e.getPoint();
-                mousePoint.x = temp.x;
-                mousePoint.y = temp.y;
+                mousePoint.x = temp.x-7;
+                mousePoint.y = temp.y-30;
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 Point temp = e.getPoint();
-                mousePoint.x = temp.x;
-                mousePoint.y = temp.y;
+                mousePoint.x = temp.x-7;
+                mousePoint.y = temp.y-30;
             }
         });
         frame.addMouseListener(new MouseHandler());
@@ -52,7 +52,8 @@ public class Window {
     }
 
     public Vector2D getMousePoint() {
-        return new Vector2D(mousePoint.x+(float)Game.getInstance().cameraMap.get(CameraID.game).getX(), mousePoint.y+(float)Game.getInstance().cameraMap.get(CameraID.game).getY());
+        return new Vector2D(mousePoint.x+(float)Game.getInstance().cameraMap.get(CameraID.game).getX(),
+                mousePoint.y+(float)Game.getInstance().cameraMap.get(CameraID.game).getY());
     }
 
     public static Window getInstance() {

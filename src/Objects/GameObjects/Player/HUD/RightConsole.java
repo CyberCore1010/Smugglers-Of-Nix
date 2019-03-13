@@ -31,7 +31,7 @@ class RightConsole extends Console{
     RightConsole(HUD hud) {
         super(hud);
         x = (Window.gameWidth/2)-Window.gameWidth/5-20;
-        y = (Window.gameHeight/2)-Window.gameHeight/5-40;
+        y = (Window.gameHeight/2)-Window.gameHeight/5-80;
         width = Window.gameWidth/5;
         height = Window.gameHeight/5;
 

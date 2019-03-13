@@ -5,8 +5,8 @@ import Init.Game;
 import Init.Window;
 import Objects.GameObjects.Effects.Explosion;
 import Objects.GameObjects.Effects.Projectile;
+import Objects.GameObjects.Effects.Smoke;
 import Objects.GameObjects.NPC.Enemy.Enemy;
-import Objects.GameObjects.NPC.NPC;
 import Objects.GameObjects.Player.HUD.HUD;
 import Objects.GameObjects.Player.Missions.Mission;
 import Objects.GameObjects.Player.Missions.Tutorial;
@@ -37,10 +37,12 @@ public class Player extends GameObject implements Physics{
     public int health;
     public int maxShield;
     public int shield;
+    private int shieldRecharge;
     public int fuel;
     public int maxFuel;
     public int credits = 0;
     public Mission currentMission;
+    public Enemy targetedEnemy;
 
     private boolean dead = false;
 
@@ -171,6 +173,17 @@ public class Player extends GameObject implements Physics{
 
     public void upgrade(ComponentID id, Component component) {
         components.replace(id, component);
+        statUpdate();
+    }
+
+    private void statUpdate() {
+        int oldMaxHealth = maxHealth;
+        maxHealth = (int)components.get(ComponentID.hull).getStat()[0];
+        health += maxHealth-oldMaxHealth;
+
+        int oldMaxShield = maxShield;
+        maxShield = (int)components.get(ComponentID.shield).getStat()[0];
+        shield += maxShield-oldMaxShield;
     }
 
     public float[] getStat(ComponentID id) {
@@ -182,6 +195,7 @@ public class Player extends GameObject implements Physics{
         resultantForce.set(0, 0);
 
         if(!dead) {
+            updateShield();
             if(weaponCooldown > 0) weaponCooldown--;
             if(cameraZoomTime > 0) cameraZoomTime--;
 
@@ -198,6 +212,10 @@ public class Player extends GameObject implements Physics{
                     mouseAngle = midPos.polarAngle(mousePoint);
                     followMouse();
                     input();
+                    collisions(velocity);
+
+                    position = Game.getInstance().universe.systems.get(SystemID.Sol).entities.get(0).position.add(1, 1);
+                    midPos = Game.getInstance().universe.systems.get(SystemID.Sol).entities.get(0).midPos.add(1, 1);
                 } else if(docking) {
                     followMouse();
                     dockingManeuver();
@@ -376,7 +394,23 @@ public class Player extends GameObject implements Physics{
     }
 
     public void takeDamage(int damage) {
-        health -= damage;
+        if(shield > 0) {
+            shield--;
+        } else {
+            health -= damage;
+            new SFXPlayer("res/SFX/Effects/Impact.wav", false).play();
+        }
+        shieldRecharge = (int)getStat(ComponentID.shield)[1];
+    }
+
+    private void updateShield() {
+        if(shield < maxShield) {
+            if(shieldRecharge > 0) {
+                shieldRecharge--;
+            } else {
+                shield = maxShield;
+            }
+        }
     }
 
     private void deathSequence() {
@@ -388,7 +422,8 @@ public class Player extends GameObject implements Physics{
         TimerTask startTask = new TimerTask() {
             @Override
             public void run() {
-
+                Game.getInstance().universe.systems.get(currentLocation).addEntity(new Smoke(position.x, position.y));
+                Game.getInstance().rebuildHandler();
             }
         };
         TimerTask endTask = new TimerTask() {
@@ -400,7 +435,7 @@ public class Player extends GameObject implements Physics{
             }
         };
 
-        start.scheduleAtFixedRate(startTask, 0, 10);
+        start.scheduleAtFixedRate(startTask, 0, 100);
         end.schedule(endTask, (int)((Math.random() * 501) + 1000));
     }
 
@@ -452,7 +487,9 @@ public class Player extends GameObject implements Physics{
             Drawable drawable = (g) -> {
                 if(jumping) {
                     g.setPaint(new TexturePaint(jump, new Rectangle2D.Double(-position.x*5, -position.y*5, Init.Window.gameWidth*2, Init.Window.gameHeight*2)));
-                    g.fillRect((int)Game.getInstance().cameraMap.get(CameraID.game).getX(), (int)Game.getInstance().cameraMap.get(CameraID.game).getY(), Init.Window.gameWidth, Window.gameHeight);
+                    g.fillRect((int)Game.getInstance().cameraMap.get(CameraID.game).getX()-Window.gameWidth/2,
+                            (int)Game.getInstance().cameraMap.get(CameraID.game).getY()-Window.gameHeight/2,
+                            Init.Window.gameWidth*2, Window.gameHeight*2);
                 }
 
                 AffineTransform newTransform = g.getTransform();
@@ -462,6 +499,11 @@ public class Player extends GameObject implements Physics{
                     g.drawImage(engineSprites.get(engineIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
                 }
                 g.drawImage(playerSprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
+
+//                g.setColor(Color.RED);
+//                for(Line2D line : getPolyBounds()) {
+//                    g.drawLine((int)line.getX1(), (int)line.getY1(), (int)line.getX2(), (int)line.getY2());
+//                }
             };
 
             renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
@@ -472,11 +514,25 @@ public class Player extends GameObject implements Physics{
 
     @Override
     public Rectangle2D getSquareBounds() {
-        return null;
+        return new Rectangle2D.Double(position.x, position.y, width, height);
     }
 
     @Override
     public ObjectList<Line2D> getPolyBounds() {
-        return null;
+        ObjectList<Line2D> returnList = new ObjectList<>();
+        returnList.add(new Line2D.Double( //Back
+                midPos.x-width/7, midPos.y-height/2.3, midPos.x-width/7, midPos.y+height/2.3
+        ));
+        returnList.add(new Line2D.Double( //Left
+                midPos.x-width/7, midPos.y-height/2.3, midPos.x+width/2.5, midPos.y-height/3.4
+        ));
+        returnList.add(new Line2D.Double( //Right
+                midPos.x-width/7, midPos.y+height/2.3, midPos.x+width/2.5, midPos.y+height/3.4
+        ));
+        returnList.add(new Line2D.Double( //Front
+                midPos.x+width/2.5, midPos.y-height/3.4,  midPos.x+width/2.5, midPos.y+height/3.4
+        ));
+
+        return Maths.rotatePolygon(returnList, midPos, rotation);
     }
 }

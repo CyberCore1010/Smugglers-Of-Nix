@@ -1,11 +1,14 @@
 package Objects.GameObjects.Player.HUD.StarPortOS;
 
+import Init.CameraID;
+import Init.Game;
 import Init.Window;
 import Objects.GameObjects.Player.HUD.HUD;
 import Objects.GameObjects.Player.HUD.StarPortOS.MissionMenu.MissionMenu;
-import Objects.GameObjects.Player.Missions.Mission;
+import Objects.GameObjects.Player.HUD.StarPortOS.OutfittingMenu.OutfittingMenu;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.BufferedImageLoader;
+import Objects.Utility.Maths.Vector2D;
 import Objects.Utility.SFXPlayer;
 
 import java.awt.*;
@@ -26,7 +29,7 @@ public class StarPortOS {
     public SFXPlayer ambiance;
 
     TabType currentTab;
-    private Tab menu, info, missionMenu, outfitting;
+    private Tab menu, info, missionMenu, outfittingMenu;
 
     public StarPortOS(HUD hud) {
         this.hud = hud;
@@ -44,22 +47,26 @@ public class StarPortOS {
         splashScreen2 = bufferedImageLoader.loadImage("/Sprites/UI/Starport2.png");
 
         menu = new Menu(this);
+
         missionMenu = new MissionMenu( this);
+        outfittingMenu = new OutfittingMenu(this);
     }
 
     public void update() {
         if(!ambiance.getClip().isActive()) ambiance.play();
 
-        menu.update();
-
-        switch (currentTab) {
-            case info:
-                break;
-            case mission:
-                missionMenu.update();
-                break;
-            case outfitting:
-                break;
+        if(SplashScreenOffset > max/1.5) {
+            menu.update();
+            switch (currentTab) {
+                case info:
+                    break;
+                case mission:
+                    missionMenu.update();
+                    break;
+                case outfitting:
+                    outfittingMenu.update();
+                    break;
+            }
         }
 
         updateSplashScreen();
@@ -107,6 +114,7 @@ public class StarPortOS {
                     draw(missionMenu.getGraphics(), g2);
                     break;
                 case outfitting:
+                    draw(outfittingMenu.getGraphics(), g2);
                     break;
             }
 

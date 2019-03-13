@@ -5,6 +5,7 @@ import Init.Game;
 import Init.Window;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.NPC.Enemy.Enemy;
+import Objects.GameObjects.NPC.NPC;
 import Objects.GameObjects.ObjectID;
 import Objects.GameObjects.Player.Player;
 import Objects.GameObjects.Properties.Drawable;
@@ -110,23 +111,24 @@ public class Projectile extends GameObject {
                                 enemy.takeDamage((int)damage);
                                 Game.getInstance().universe.systems.get(id).entities.remove(me);
                                 Game.getInstance().rebuildHandler();
+                                Game.getInstance().player.targetedEnemy = enemy;
                             }
                         }
                     }
                 }
             } else {
-//                if(object.id == ObjectID.player) {
-//                    if(object.getSquareBounds().intersects(line.getBounds2D())) {
-//                        for(Line2D polyLine : object.getPolyBounds()) {
-//                            if(polyLine.intersects(line.getBounds())) {
-//                                Player player = (Player) object;
-//                                player.takeDamage((int)damage);
-//                                Game.getInstance().universe.systems.get(id).entities.remove(me);
-//                                Game.getInstance().rebuildHandler();
-//                            }
-//                        }
-//                    }
-//                }
+                if(object.id == ObjectID.player) {
+                    if(object.getSquareBounds().intersects(line.getBounds2D())) {
+                        for(Line2D polyLine : object.getPolyBounds()) {
+                            if(polyLine.intersects(line.getBounds())) {
+                                Player player = (Player) object;
+                                player.takeDamage((int)damage);
+                                Game.getInstance().universe.systems.get(id).entities.remove(me);
+                                Game.getInstance().rebuildHandler();
+                            }
+                        }
+                    }
+                }
             }
         }
     }

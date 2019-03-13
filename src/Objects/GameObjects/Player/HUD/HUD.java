@@ -13,12 +13,11 @@ import java.awt.*;
 public class HUD {
     public Player player;
 
-    public Color opaqueHudColor, darkHudColor;
-    public Color textColor;
-    Color lightHudColor;
+    public Color opaqueHudColor, darkHudColor, lightHudColor, textColor;
     private Font font;
     SFXPlayer hover1, hover2, click1, click2, ambiance;
 
+    private Console leftConsole;
     private Console middleConsole;
     private Console rightConsole;
 
@@ -40,6 +39,7 @@ public class HUD {
 
         ambiance = new SFXPlayer("res/SFX/Ambiance.wav", false);
 
+        leftConsole = new LeftConsole(this);
         middleConsole = new MiddleConsole(this);
         rightConsole = new RightConsole(this);
 
@@ -54,6 +54,7 @@ public class HUD {
             if(!ambiance.getClip().isActive()) {
                 ambiance.play();
             }
+            leftConsole.update();
             middleConsole.update();
             rightConsole.update();
             starPortOS.playJingle = true;
@@ -66,6 +67,7 @@ public class HUD {
         g2d.setFont(font);
 
         if(!player.docked) {
+            draw(leftConsole.getGraphics(), g2d);
             draw(middleConsole.getGraphics(), g2d);
             draw(rightConsole.getGraphics(), g2d);
         }
