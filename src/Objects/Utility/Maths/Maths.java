@@ -36,4 +36,9 @@ public class Maths {
         }
         return list;
     }
+
+    public static int randomInt(int min, int max) {
+        double range = (max - min);
+        return (int)(Math.random() * range) + min;
+    }
 }

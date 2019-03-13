@@ -20,8 +20,6 @@ public class ComponentButton extends InteractivePanel {
     public Drawable getGraphics() {
         return (g2) -> {
             if(hover) {
-                g2.setColor(starPortOS.hud.lightHudColor);
-                g2.setColor(new Color(255,140,0));
                 g2.setColor(new Color(255, 255, 255 ,25));
                 g2.fillRect(x, y, width, height);
             }

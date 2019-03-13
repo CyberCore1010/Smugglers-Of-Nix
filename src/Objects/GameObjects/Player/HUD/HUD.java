@@ -14,7 +14,7 @@ public class HUD {
     public Player player;
 
     public Color opaqueHudColor, darkHudColor, lightHudColor, textColor;
-    private Font font;
+    public Font font;
     SFXPlayer hover1, hover2, click1, click2, ambiance;
 
     private Console leftConsole;
