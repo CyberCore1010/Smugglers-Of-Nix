@@ -1,5 +1,6 @@
 package Objects.GameObjects.Player;
 
+import Init.Camera;
 import Init.CameraID;
 import Init.Game;
 import Init.Window;
@@ -46,11 +47,12 @@ public class Player extends GameObject implements Physics{
 
     private boolean dead = false;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private double mass = 200;
     private Vector2D velocity = new Vector2D();
     private Vector2D resultantForce = new Vector2D();
 
-    public Vector2D directionUnitVector = new Vector2D(0.01, 0.01);
+    private Vector2D directionUnitVector = new Vector2D(0.01, 0.01);
     private double rotation = 1;
     private double mouseAngle;
     private boolean turning;
@@ -58,7 +60,7 @@ public class Player extends GameObject implements Physics{
     private ObjectList<BufferedImage> playerSprites;
     private ObjectList<BufferedImage> engineSprites;
     private int spriteIndex = 0;
-    private boolean weaponOut = false;
+    public boolean weaponOut = false;
     private int weaponOutTime = 0;
     private int weaponCooldown = 0;
     private boolean enginesOn = false;
@@ -66,19 +68,21 @@ public class Player extends GameObject implements Physics{
     private int engineTime = 0;
 
     private int cameraZoomTime = 0;
+    private double cameraZoomValue = Double.MAX_VALUE;
 
+    //Sounds
     private SFXPlayer speedUp = new SFXPlayer("res/SFX/Ship/Speed up.wav", false);
     private SFXPlayer speedDown = new SFXPlayer("res/SFX/Ship/Speed down.wav", false);
     private SFXPlayer thrust = new SFXPlayer("res/SFX/Ship/Thrust.wav", true);
     private SFXPlayer turn = new SFXPlayer("res/SFX/Ship/Turn.wav", true);
-    public SFXPlayer jumpSound = new SFXPlayer("res/SFX/Ship/Frame shift.wav", false);
+    private SFXPlayer jumpSound = new SFXPlayer("res/SFX/Ship/Frame shift.wav", false);
     private SFXPlayer deployWeapons = new SFXPlayer("res/SFX/Ship/Deploy weapons.wav", false);
     private SFXPlayer stowWeapons = new SFXPlayer("res/SFX/Ship/Stow weapons.wav", false);
 
     private SystemID currentLocation = SystemID.Sol;
     public boolean jumping = false, chargingJump = false;
     private BufferedImage jump;
-    public Timer timer;
+    private Timer timer;
 
     private ObjectMap<ComponentID, Component> components;
     private HUD hud;
@@ -192,8 +196,6 @@ public class Player extends GameObject implements Physics{
 
     @Override
     public void update() {
-        resultantForce.set(0, 0);
-
         if(!dead) {
             updateShield();
             if(weaponCooldown > 0) weaponCooldown--;
@@ -214,8 +216,8 @@ public class Player extends GameObject implements Physics{
                     input();
                     collisions(velocity);
 
-                    position = Game.getInstance().universe.systems.get(SystemID.Sol).entities.get(0).position.add(1, 1);
-                    midPos = Game.getInstance().universe.systems.get(SystemID.Sol).entities.get(0).midPos.add(1, 1);
+//                    position = Game.getInstance().universe.systems.get(SystemID.Sol).entities.get(0).position.add(1, 1);
+//                    midPos = Game.getInstance().universe.systems.get(SystemID.Sol).entities.get(0).midPos.add(1, 1);
                 } else if(docking) {
                     followMouse();
                     dockingManeuver();
@@ -232,8 +234,33 @@ public class Player extends GameObject implements Physics{
         movement();
         spriteUpdate();
 
-        Game.getInstance().cameraMap.get(CameraID.game).setX(midPos.x);
-        Game.getInstance().cameraMap.get(CameraID.game).setY(midPos.y);
+        handleCamera();
+
+        resultantForce.set(0, 0);
+    }
+
+    private void handleCamera() {
+        Camera gameCam = Game.getInstance().cameraMap.get(CameraID.game);
+        gameCam.setX(midPos.x);
+        gameCam.setY(midPos.y+Window.gameHeight/25);
+
+        if(cameraZoomValue == Double.MAX_VALUE) {
+            cameraZoomValue = gameCam.getZoom();
+        }
+
+        if(gameCam.getZoom() > cameraZoomValue) {
+            if(Math.abs(gameCam.getZoom() - cameraZoomValue) < 0.001) {
+                gameCam.setZoom(gameCam.getZoom() - Math.abs(gameCam.getZoom() - cameraZoomValue));
+            } else {
+                gameCam.setZoom(gameCam.getZoom() - 0.001);
+            }
+        } else if(gameCam.getZoom() < cameraZoomValue) {
+            if(Math.abs(gameCam.getZoom() - cameraZoomValue) < 0.001) {
+                gameCam.setZoom(gameCam.getZoom() + Math.abs(gameCam.getZoom() - cameraZoomValue));
+            } else {
+                gameCam.setZoom(gameCam.getZoom() + 0.001);
+            }
+        }
     }
 
     private void checkDead() {
@@ -299,9 +326,14 @@ public class Player extends GameObject implements Physics{
 
         if(canDock) {
             if(KeyHandler.isKeyPressed(Keys.home)) {
-                new SFXPlayer("res/SFX/Ship/Docking request.wav", false).play();
-                canDock = false;
-                docking = true;
+                if(weaponOut) {
+                    hud.hardpointError();
+                    //todo play error sound "Docking request denied"
+                } else {
+                    new SFXPlayer("res/SFX/Ship/Docking request.wav", false).play();
+                    canDock = false;
+                    docking = true;
+                }
             }
         }
         if(MouseHandler.isMouseClicked(MouseButtons.LMB)) {
@@ -330,10 +362,10 @@ public class Player extends GameObject implements Physics{
         }
         if(MouseHandler.isMouseClicked(MouseButtons.MMB)) {
             if(cameraZoomTime == 0) {
-                if (Game.getInstance().cameraMap.get(CameraID.game).getZoom() != 0.7)  {
-                    Game.getInstance().cameraMap.get(CameraID.game).setZoom(0.7);
+                if(cameraZoomValue != 0.7)  {
+                    cameraZoomValue = 0.7;
                 } else {
-                    Game.getInstance().cameraMap.get(CameraID.game).setZoom(1);
+                    cameraZoomValue = 1;
                 }
                 cameraZoomTime = 10;
             }
@@ -473,11 +505,11 @@ public class Player extends GameObject implements Physics{
         resultantForce = resultantForce.add(force);
     }
 
-    public void setRotation(double rotation){
+    private void setRotation(double rotation){
         this.rotation = rotation;
     }
 
-    public double getRotation(){
+    private double getRotation(){
         return rotation;
     }
 
@@ -501,6 +533,7 @@ public class Player extends GameObject implements Physics{
                 g.drawImage(playerSprites.get(spriteIndex), (int)position.x, (int)position.y, (int)width, (int)height, null);
 
 //                g.setColor(Color.RED);
+//                g.drawRect((int)getSquareBounds().getX(), (int)getSquareBounds().getY(), (int)getSquareBounds().getWidth(), (int)getSquareBounds().getHeight());
 //                for(Line2D line : getPolyBounds()) {
 //                    g.drawLine((int)line.getX1(), (int)line.getY1(), (int)line.getX2(), (int)line.getY2());
 //                }

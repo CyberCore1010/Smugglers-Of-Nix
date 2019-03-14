@@ -35,7 +35,7 @@ public class StarPortOS {
         this.hud = hud;
 
         x = (int)(-Window.gameWidth/2.5);
-        y = (int)(-Window.gameHeight/2.5);
+        y = (int)(-Window.gameHeight/2.3);
         width = (int)(Window.gameWidth/1.25);
         height = (int)(Window.gameHeight/1.25);
 

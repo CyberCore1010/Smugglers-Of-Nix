@@ -1,9 +1,7 @@
 package Objects.GameObjects.Player.HUD.StarPortOS.OutfittingMenu;
 
 import Init.Window;
-import Objects.GameObjects.Player.Components.ComponentID;
-import Objects.GameObjects.Player.Components.Level;
-import Objects.GameObjects.Player.Components.Shield;
+import Objects.GameObjects.Player.Components.*;
 import Objects.GameObjects.Player.HUD.StarPortOS.InteractivePanel;
 import Objects.GameObjects.Player.HUD.StarPortOS.StarPortOS;
 import Objects.GameObjects.Player.HUD.StarPortOS.Tab;
@@ -21,7 +19,8 @@ public class OutfittingMenu extends Tab{
     private ComponentID currentMenu = ComponentID.jumpdrive;
     private InteractivePanel shieldButton, engineButton, jumpdriveButton, hullButton, leftGunButton, rightGunButton;
 
-    private ObjectList<ItemListing> currentSelection, shieldSelection, engineSelection, jumpdriveSelection, hullSelection, gunSelection;
+    private ObjectList<ItemListing> currentSelection, shieldSelection, engineSelection, jumpdriveSelection,
+            hullSelection, leftWeaponSelection, rightWeaponSelection;
 
     private Font titleFont;
 
@@ -62,17 +61,51 @@ public class OutfittingMenu extends Tab{
 
         shieldSelection = new ObjectList<>();
         shieldSelection.add(new ItemListing(boxX+boxWidth/20, boxY, boxWidth-boxWidth/10, (int)(height/4.5),
-                starPortOS, Maths.randomInt(100, 500), ComponentID.shield, new Shield(Level.basic)));
+                starPortOS, Maths.randomInt(100, 500), ComponentID.shield, Level.basic, new Shield(Level.basic)));
         shieldSelection.add(new ItemListing(boxX+boxWidth/20, boxY+height/4, boxWidth-boxWidth/10, (int)(height/4.5),
-                starPortOS, Maths.randomInt(1000, 1500), ComponentID.shield, new Shield(Level.advanced)));
+                starPortOS, Maths.randomInt(1000, 2000), ComponentID.shield, Level.advanced, new Shield(Level.advanced)));
         shieldSelection.add(new ItemListing(boxX+boxWidth/20, boxY+((height/4)*2), boxWidth-boxWidth/10, (int)(height/4.5),
-                starPortOS, Maths.randomInt(2000, 3000), ComponentID.shield, new Shield(Level.elite)));
+                starPortOS, Maths.randomInt(2500, 4000), ComponentID.shield, Level.elite, new Shield(Level.elite)));
 
         engineSelection = new ObjectList<>();
-        jumpdriveSelection = new ObjectList<>();
-        hullSelection = new ObjectList<>();
-        gunSelection = new ObjectList<>();
+        engineSelection.add(new ItemListing(boxX+boxWidth/20, boxY, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(100, 500), ComponentID.engine, Level.basic, new Engine(Level.basic)));
+        engineSelection.add(new ItemListing(boxX+boxWidth/20, boxY+height/4, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(750, 2000), ComponentID.engine, Level.advanced, new Engine(Level.advanced)));
+        engineSelection.add(new ItemListing(boxX+boxWidth/20, boxY+((height/4)*2), boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(1500, 2500), ComponentID.engine, Level.elite, new Engine(Level.elite)));
 
+        jumpdriveSelection = new ObjectList<>();
+        jumpdriveSelection.add(new ItemListing(boxX+boxWidth/20, boxY, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(1000, 1500), ComponentID.jumpdrive, Level.basic, new Jumpdrive(Level.basic)));
+        jumpdriveSelection.add(new ItemListing(boxX+boxWidth/20, boxY+height/4, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(2000, 3500), ComponentID.jumpdrive, Level.advanced, new Jumpdrive(Level.advanced)));
+        jumpdriveSelection.add(new ItemListing(boxX+boxWidth/20, boxY+((height/4)*2), boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(4000, 6000), ComponentID.jumpdrive, Level.elite, new Jumpdrive(Level.elite)));
+
+        hullSelection = new ObjectList<>();
+        hullSelection.add(new ItemListing(boxX+boxWidth/20, boxY, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(100, 500), ComponentID.hull, Level.basic, new Hull(Level.basic)));
+        hullSelection.add(new ItemListing(boxX+boxWidth/20, boxY+height/4, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(1000, 1500), ComponentID.hull, Level.advanced, new Hull(Level.advanced)));
+        hullSelection.add(new ItemListing(boxX+boxWidth/20, boxY+((height/4)*2), boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(2000, 3500), ComponentID.hull, Level.elite, new Hull(Level.elite)));
+
+        leftWeaponSelection = new ObjectList<>();
+        leftWeaponSelection.add(new ItemListing(boxX+boxWidth/20, boxY, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(100, 500), ComponentID.weaponLeft, Level.basic, new Hull(Level.basic)));
+        leftWeaponSelection.add(new ItemListing(boxX+boxWidth/20, boxY+height/4, boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(1000, 2000), ComponentID.weaponLeft, Level.advanced, new Hull(Level.advanced)));
+        leftWeaponSelection.add(new ItemListing(boxX+boxWidth/20, boxY+((height/4)*2), boxWidth-boxWidth/10, (int)(height/4.5),
+                starPortOS, Maths.randomInt(2500, 4000), ComponentID.weaponLeft, Level.elite, new Weapon(Level.elite)));
+
+        rightWeaponSelection = new ObjectList<>();
+        rightWeaponSelection.add(new ItemListing(boxX+boxWidth/20, boxY, boxWidth-boxWidth/10, (int)(height/4.5),
+                leftWeaponSelection.get(0), ComponentID.weaponRight));
+        rightWeaponSelection.add(new ItemListing(boxX+boxWidth/20, boxY+height/4, boxWidth-boxWidth/10, (int)(height/4.5),
+                leftWeaponSelection.get(1), ComponentID.weaponRight));
+        rightWeaponSelection.add(new ItemListing(boxX+boxWidth/20, boxY+((height/4)*2), boxWidth-boxWidth/10, (int)(height/4.5),
+                leftWeaponSelection.get(2), ComponentID.weaponRight));
     }
 
     @Override
@@ -86,10 +119,10 @@ public class OutfittingMenu extends Tab{
 
         switch(currentMenu) {
             case weaponLeft:
-                currentSelection = gunSelection;
+                currentSelection = leftWeaponSelection;
                 break;
             case weaponRight:
-                currentSelection = gunSelection;
+                currentSelection = rightWeaponSelection;
                 break;
             case shield:
                 currentSelection = shieldSelection;

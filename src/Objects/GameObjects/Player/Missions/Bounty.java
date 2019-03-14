@@ -190,22 +190,70 @@ public class Bounty extends Mission {
                 }
                 return returnString;
             case Titanus:
-                break;
+                returnString[1] = "Defeat "+level+" ships in Titanus ";
+                switch(random) {
+                    case 1:
+                        returnString[0] = "Planetfall";
+                        returnString[2] = "There have been reports of ships making their way through this system in " +
+                                "an attempt to rage war on the nearby planet exodus. ";
+                        break;
+                    case 2:
+                        returnString[0] = "Against all odds";
+                        returnString[2] = "";
+                        break;
+                    case 3:
+                        returnString[0] = "Belly of the Beast";
+                        returnString[2] = "A demon entity has been manifesting itself inside of any vessel it can find. " +
+                                "We need you to take out this threat before it spreads too far. ";
+                        break;
+                }
+                return returnString;
             case Genesis:
-                break;
+                returnString[1] = "Defeat "+level+" ships in Genesis ";
+                switch(random) {
+                    case 1:
+                        returnString[0] = "Misunderstanding";
+                        returnString[2] = "We've been working closely with the Watcher of the Skies cult as they provide " +
+                                "valuable resources for us, however a slight misunderstanding has made them hostile.";
+                        break;
+                    case 2:
+                        returnString[0] = "Follow you, follow me";
+                        returnString[2] = "follow you follow follow you me follow follow you follow follow me follow me " +
+                                "you follow me follow you follow me you follow follow you follow me you follow?";
+                        break;
+                    case 3:
+                        returnString[0] = "In too deep";
+                        returnString[2] = "I've done some bad things you know and I got mixed up in a whole bunch of stuff " +
+                                "that I don't really want to be a part of. Please help me. ";
+                        break;
+                }
+                return returnString;
             case Novis:
-                break;
-            case Astraeus:
-                break;
-            case Nyx:
-                break;
-            case GrimHex:
-                break;
+                returnString[1] = "Defeat "+level+" ships in Novis ";
+                switch(random) {
+                    default:
+                        returnString[0] = "";
+                        returnString[2] = "";
+                        break;
+                }
+                return returnString;
+            default:
+                returnString[1] = "Defeat "+level+" ships in Novis ";
+                switch(random) {
+                    case 1:
+                        returnString[0] = "Why are you still playing this?";
+                        returnString[2] = "No seriously why?.";
+                        break;
+                    case 2:
+                        returnString[0] = "Why are you still playing this?";
+                        returnString[2] = "No seriously why?.";
+                        break;
+                    case 3:
+                        returnString[0] = "Why are you still playing this?";
+                        returnString[2] = "No seriously why?.";
+                        break;
+                }
+                return returnString;
         }
-
-        returnString[0] = "Broken";
-        returnString[1] = "Broken";
-        returnString[2] = "Broken";
-        return returnString;
     }
 }

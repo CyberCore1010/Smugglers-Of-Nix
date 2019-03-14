@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
 
 public class Background extends GameObject {
     private Player player;
-    private BufferedImage solBack, fortunaBack;
+    private BufferedImage solBack, fortunaBack, neroBack, titanusBack, genesisBack, novisBack;
     private BufferedImage debris;
 
     public Background(Player player) {
@@ -24,8 +24,13 @@ public class Background extends GameObject {
         this.player = player;
 
         BufferedImageLoader bufferedImageLoader = new BufferedImageLoader();
-        solBack = bufferedImageLoader.loadImage("/solBack.png");
-        fortunaBack = bufferedImageLoader.loadImage("/fortunaBack.png");
+        solBack = bufferedImageLoader.loadImage("/Backgrounds/solBack.png");
+        fortunaBack = bufferedImageLoader.loadImage("/Backgrounds/fortunaBack.png");
+        neroBack = bufferedImageLoader.loadImage("/Backgrounds/neroBack.png");
+
+        titanusBack = bufferedImageLoader.loadImage("/Backgrounds/titanusBack.png");
+        genesisBack = bufferedImageLoader.loadImage("/Backgrounds/genesisBack.png");
+        novisBack = bufferedImageLoader.loadImage("/Backgrounds/novisBack.png");
 
         debris = bufferedImageLoader.loadImage("/debris.png");
     }
@@ -41,10 +46,21 @@ public class Background extends GameObject {
             BufferedImage back;
             if(player.getCurrentLocation() == SystemID.Fortuna) {
                 back = fortunaBack;
-            } else {
+            } else if(player.getCurrentLocation() == SystemID.Nero) {
+                back = neroBack;
+            } else if(player.getCurrentLocation() == SystemID.Titanus) {
+                back = titanusBack;
+            } else if(player.getCurrentLocation() == SystemID.Genesis) {
+                back = genesisBack;
+            } else if(player.getCurrentLocation() == SystemID.Novis) {
+                back = novisBack;
+            }
+            else {
                 back = solBack;
             }
-            g.drawImage(back, -Window.gameWidth/2, -Window.gameHeight/2, Init.Window.gameWidth, Window.gameHeight, null);
+            g.setPaint(new TexturePaint(back, new Rectangle2D.Double(-player.position.x/100, -player.position.y/100, Window.gameWidth, Window.gameHeight)));
+            g.fillRect(-Window.gameWidth/2, -Window.gameHeight/2, Init.Window.gameWidth*2, Window.gameHeight*2);
+            //g.drawImage(back, -Window.gameWidth/2, -Window.gameHeight/2, Init.Window.gameWidth, Window.gameHeight, null);
         };
         Drawable movingBack = (g)-> {
             g.setPaint(new TexturePaint(debris, new Rectangle2D.Double(0, 0, Window.gameWidth, Window.gameHeight)));

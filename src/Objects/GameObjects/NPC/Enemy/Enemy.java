@@ -4,6 +4,7 @@ import Init.CameraID;
 import Init.Game;
 import Init.Window;
 import Objects.GameObjects.Effects.Projectile;
+import Objects.GameObjects.Effects.Smoke;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.NPC.NPC;
 import Objects.GameObjects.ObjectID;
@@ -22,6 +23,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Enemy extends NPC implements Physics{
     public Vector2D directionUnitVector;
@@ -33,11 +36,12 @@ public class Enemy extends NPC implements Physics{
     private SFXPlayer turn;
 
     private double mass = 200;
-    private Vector2D velocity = new Vector2D();
+    public Vector2D velocity = new Vector2D();
     private Vector2D resultantForce = new Vector2D();
 
     private int weaponCooldown = 0;
 
+    public boolean agro = false;
     private boolean attackState = true;
 
     public Enemy(SystemID systemID) {
@@ -73,13 +77,12 @@ public class Enemy extends NPC implements Physics{
     public void update() {
         updateShield();
 
-        resultantForce = resultantForce.set(0, 0);
         if(!dead) {
             if(health <= 0) {
                 dead = true;
                 deathSequence();
             }
-            if(detectPlayer()) {
+            if(agro) {
                 checkState();
                 rotateToPlayer();
                 fly();
@@ -87,9 +90,12 @@ public class Enemy extends NPC implements Physics{
                 if(attackState) {
                     shoot();
                 }
+            } else {
+                agro = detectPlayer();
             }
         }
         movement();
+        resultantForce = resultantForce.set(0, 0);
     }
 
     private boolean detectPlayer() {
@@ -158,7 +164,11 @@ public class Enemy extends NPC implements Physics{
     }
 
     private void fly() {
-        applyForce(directionUnitVector.scale(10));
+        if(health < 10) {
+            applyForce(directionUnitVector.scale(5));
+        } else {
+            applyForce(directionUnitVector.scale(10));
+        }
     }
 
     @Override

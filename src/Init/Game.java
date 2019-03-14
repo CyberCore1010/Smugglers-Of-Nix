@@ -6,6 +6,7 @@ import Objects.GameObjects.NPC.Enemy.Enemy;
 import Objects.GameObjects.Player.Player;
 import Objects.GameWorld.SystemID;
 import Objects.GameWorld.Universe;
+import Objects.Utility.MusicHandler;
 import Objects.Utility.ObjectList;
 import Objects.Utility.ObjectMap;
 import Objects.Utility.SFXPlayer;
@@ -25,6 +26,7 @@ public class Game extends JComponent {
     public Universe universe;
     public Player player;
     public ObjectList<GameObject> handler;
+    private MusicHandler musicHandler;
 
     private Game() {
         cameraMap = new ObjectMap<>();
@@ -38,6 +40,8 @@ public class Game extends JComponent {
         handler.add(new Background(player));
         handler.addAll(universe.systems.get(player.getCurrentLocation()).entities);
         handler.add(player);
+
+        musicHandler = new MusicHandler();
 
         thread = new Thread(this::start);
         thread.start();
@@ -89,6 +93,7 @@ public class Game extends JComponent {
         for(GameObject object : handler) {
             object.update();
         }
+        musicHandler.update();
     }
 
     private void stop() {

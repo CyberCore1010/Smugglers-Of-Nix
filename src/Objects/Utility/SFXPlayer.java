@@ -22,8 +22,11 @@ public class SFXPlayer {
         }
     }
 
-    public void setVolume(float gain) {
-        ((FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN)).setValue(gain);
+    public void setVolume(float volume) {
+        FloatControl gainControl = ((FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN));
+        float range = gainControl.getMaximum() - gainControl.getMinimum();
+        float gain = (range * volume) + gainControl.getMinimum();
+        gainControl.setValue(gain);
     }
 
     public void play() {

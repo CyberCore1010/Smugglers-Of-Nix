@@ -38,7 +38,18 @@ public class Maths {
     }
 
     public static int randomInt(int min, int max) {
+        boolean negativeMin = false;
+        if(min < 0) {
+            negativeMin = true;
+            min = 0;
+        }
         double range = (max - min);
-        return (int)(Math.random() * range) + min;
+        int value = (int)Math.round((Math.random() * range) + min);
+        if(negativeMin) {
+            if(randomInt(0, 1) == 0) {
+                value = -value;
+            }
+        }
+        return value;
     }
 }

@@ -4,7 +4,6 @@ import Init.Window;
 import Objects.GameObjects.Player.Components.ComponentID;
 import Objects.GameObjects.Player.Missions.Bounty;
 import Objects.GameObjects.Player.Missions.Empty;
-import Objects.GameObjects.Player.Missions.Mission;
 import Objects.GameObjects.Player.Missions.Tutorial;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.GameWorld.SystemID;
@@ -106,63 +105,68 @@ class RightConsole extends Console{
 
     private void activateJump() {
         clickSound();
-        KeyHandler.forceKey(Keys.enter, false);
-        ObjectList<SystemID> list = new ObjectList<>();
-        if(leftColumn) {
-            list.add(SystemID.Sol);
-            list.add(SystemID.Fortuna);
-            list.add(SystemID.Nero);
-            list.add(SystemID.Titanus);
+        if(hud.player.weaponOut) {
+            hud.hardpointError();
+            //todo play error sound
         } else {
-            list.add(SystemID.Genesis);
-            list.add(SystemID.Novis);
-            list.add(SystemID.Astraeus);
-            list.add(SystemID.Nyx);
-        }
+            KeyHandler.forceKey(Keys.enter, false);
+            ObjectList<SystemID> list = new ObjectList<>();
+            if(leftColumn) {
+                list.add(SystemID.Sol);
+                list.add(SystemID.Fortuna);
+                list.add(SystemID.Nero);
+                list.add(SystemID.Titanus);
+            } else {
+                list.add(SystemID.Genesis);
+                list.add(SystemID.Novis);
+                list.add(SystemID.Astraeus);
+                list.add(SystemID.Nyx);
+            }
 
-        SystemID target = list.get(row);
+            SystemID target = list.get(row);
 
-        if(hud.player.getStat(ComponentID.jumpdrive)[0] >= target.distance) {
-            if(!hud.player.jumping && !hud.player.chargingJump) {
-                canCancel = true;
-                jumpChargeTimer = new Timer();
-                hud.player.jumpTo(target);
-                TimerTask charge = new TimerTask() {
-                    @Override
-                    public void run() {
-                        jumpChargeAmount++;
-                    }
-                };
-                TimerTask cantCancel = new TimerTask() {
-                    @Override
-                    public void run() {
-                        canCancel = false;
-                    }
-                };
-                TimerTask countdown = new TimerTask() {
-                    @Override
-                    public void run() {
-                        jumpCountDown--;
-                    }
-                };
-                TimerTask end = new TimerTask() {
-                    @Override
-                    public void run() {
-                        jumpChargeAmount = 0;
-                        jumpCountDown = 5;
-                        jumpChargeTimer.cancel();
-                    }
-                };
-                jumpChargeTimer.scheduleAtFixedRate(charge, 1000, 1000);
-                jumpChargeTimer.schedule(cantCancel, 10000);
-                jumpChargeTimer.scheduleAtFixedRate(countdown, 15000, 1000);
-                jumpChargeTimer.schedule(end, 19999);
-            } else if(canCancel) {
-                canCancel = false;
-                hud.player.cancelJump();
-                jumpChargeTimer.cancel();
-                jumpChargeAmount = 0;
-                jumpCountDown = 5;
+            if(hud.player.getStat(ComponentID.jumpdrive)[0] >= target.distance) {
+                if(!hud.player.jumping && !hud.player.chargingJump) {
+                    canCancel = true;
+                    jumpChargeTimer = new Timer();
+                    hud.player.jumpTo(target);
+                    TimerTask charge = new TimerTask() {
+                        @Override
+                        public void run() {
+                            jumpChargeAmount++;
+                        }
+                    };
+                    TimerTask cantCancel = new TimerTask() {
+                        @Override
+                        public void run() {
+                            canCancel = false;
+                        }
+                    };
+                    TimerTask countdown = new TimerTask() {
+                        @Override
+                        public void run() {
+                            jumpCountDown--;
+                        }
+                    };
+                    TimerTask end = new TimerTask() {
+                        @Override
+                        public void run() {
+                            jumpChargeAmount = 0;
+                            jumpCountDown = 5;
+                            jumpChargeTimer.cancel();
+                        }
+                    };
+                    jumpChargeTimer.scheduleAtFixedRate(charge, 1000, 1000);
+                    jumpChargeTimer.schedule(cantCancel, 10000);
+                    jumpChargeTimer.scheduleAtFixedRate(countdown, 15000, 1000);
+                    jumpChargeTimer.schedule(end, 19999);
+                } else if(canCancel) {
+                    canCancel = false;
+                    hud.player.cancelJump();
+                    jumpChargeTimer.cancel();
+                    jumpChargeAmount = 0;
+                    jumpCountDown = 5;
+                }
             }
         }
     }
@@ -184,6 +188,9 @@ class RightConsole extends Console{
                 missionMenu(g2);
             }
 
+            if(hud.displayHardpointError && !hud.player.chargingJump) {
+                HUD.drawError(g2);
+            }
             if(hud.player.chargingJump) {
                 jumpdriveDisplay(g2);
             }
@@ -297,7 +304,6 @@ class RightConsole extends Console{
             } else {
                 g2.drawString(String.valueOf(jumpCountDown), -1, -80);
             }
-
         }
     }
 }

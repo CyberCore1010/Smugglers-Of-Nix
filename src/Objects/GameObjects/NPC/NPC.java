@@ -70,7 +70,7 @@ public abstract class NPC extends GameObject{
             }
         };
 
-        start.scheduleAtFixedRate(startTask, 0, 100);
+        start.scheduleAtFixedRate(startTask, 0, 200);
         end.schedule(endTask, (int)((Math.random() * 501) + 1000));
     }
 

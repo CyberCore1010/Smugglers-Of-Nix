@@ -1,6 +1,7 @@
 package Objects.GameWorld;
 
 import Init.Window;
+import Objects.GameObjects.Asteroid;
 import Objects.GameObjects.GameObject;
 import Objects.GameObjects.Station;
 import Objects.Utility.ObjectList;
@@ -36,7 +37,9 @@ public enum SystemID {
     }),
     Novis(()->{
         ObjectList<GameObject> objects = new ObjectList<>();
-
+        for(int x = 0; x < 100; x++) {
+            objects.add(new Asteroid());
+        }
         return objects;
     }),
 
