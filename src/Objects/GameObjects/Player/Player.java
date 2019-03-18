@@ -129,7 +129,7 @@ public class Player extends GameObject implements Physics{
         components.put(ComponentID.jumpdrive, new Jumpdrive(Level.basic));
 
         maxHealth = (int)components.get(ComponentID.hull).getStat()[0];
-        health = maxHealth/2; //todo remove
+        health = maxHealth;
         maxShield = (int)components.get(ComponentID.shield).getStat()[0];
         shield = maxShield;
         fuel = 100;

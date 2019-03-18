@@ -43,7 +43,7 @@ public class Background extends GameObject {
     @Override
     public void render(Graphics2D g2d) {
         Drawable staticBack = (g)->{
-            BufferedImage back;
+            BufferedImage back = solBack;
             if(player.getCurrentLocation() == SystemID.Fortuna) {
                 back = fortunaBack;
             } else if(player.getCurrentLocation() == SystemID.Nero) {
@@ -55,11 +55,8 @@ public class Background extends GameObject {
             } else if(player.getCurrentLocation() == SystemID.Novis) {
                 back = novisBack;
             }
-            else {
-                back = solBack;
-            }
-            g.setPaint(new TexturePaint(back, new Rectangle2D.Double(-player.position.x/100, -player.position.y/100, Window.gameWidth, Window.gameHeight)));
-            g.fillRect(-Window.gameWidth/2, -Window.gameHeight/2, Init.Window.gameWidth*2, Window.gameHeight*2);
+            g.setPaint(new TexturePaint(back, new Rectangle2D.Double(-player.position.x/100, -player.position.y/100, Window.gameWidth*2, Window.gameHeight*2)));
+            g.fillRect(-Window.gameWidth/2, -Window.gameHeight/2, Init.Window.gameWidth, Window.gameHeight);
             //g.drawImage(back, -Window.gameWidth/2, -Window.gameHeight/2, Init.Window.gameWidth, Window.gameHeight, null);
         };
         Drawable movingBack = (g)-> {
