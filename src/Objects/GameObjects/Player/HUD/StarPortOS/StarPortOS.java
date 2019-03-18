@@ -1,14 +1,11 @@
 package Objects.GameObjects.Player.HUD.StarPortOS;
 
-import Init.CameraID;
-import Init.Game;
 import Init.Window;
 import Objects.GameObjects.Player.HUD.HUD;
 import Objects.GameObjects.Player.HUD.StarPortOS.MissionMenu.MissionMenu;
 import Objects.GameObjects.Player.HUD.StarPortOS.OutfittingMenu.OutfittingMenu;
 import Objects.GameObjects.Properties.Drawable;
 import Objects.Utility.BufferedImageLoader;
-import Objects.Utility.Maths.Vector2D;
 import Objects.Utility.SFXPlayer;
 
 import java.awt.*;
@@ -30,6 +27,7 @@ public class StarPortOS {
 
     TabType currentTab;
     private Tab menu, info, missionMenu, outfittingMenu;
+    private Button restock;
 
     public StarPortOS(HUD hud) {
         this.hud = hud;
@@ -50,6 +48,10 @@ public class StarPortOS {
 
         missionMenu = new MissionMenu( this);
         outfittingMenu = new OutfittingMenu(this);
+        restock = new Button(0, 0, width/10, height/10, "Restock", ()->{
+            hud.player.health = hud.player.maxHealth;
+            hud.player.fuel = hud.player.maxFuel;
+        });
     }
 
     public void update() {
@@ -59,6 +61,7 @@ public class StarPortOS {
             menu.update();
             switch (currentTab) {
                 case info:
+                    restock.update();
                     break;
                 case mission:
                     missionMenu.update();
@@ -109,6 +112,7 @@ public class StarPortOS {
 
             switch (currentTab) {
                 case info:
+                    draw(restock.getGraphics(), g2);
                     break;
                 case mission:
                     draw(missionMenu.getGraphics(), g2);
