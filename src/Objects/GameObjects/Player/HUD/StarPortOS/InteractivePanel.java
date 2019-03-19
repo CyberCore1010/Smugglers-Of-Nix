@@ -9,7 +9,7 @@ import Objects.Utility.SFXPlayer;
 
 public abstract class InteractivePanel {
     public int x, y ,width, height;
-    public boolean hover;
+    public boolean hover, disabled = false;
     public Effect effect;
 
     private SFXPlayer hoverSound1, hoverSound2, clickSound1, clickSound2;
@@ -31,41 +31,43 @@ public abstract class InteractivePanel {
     }
 
     public void update() {
-        hover = true;
-        if(Window.getInstance().mousePoint.x > x+Window.gameWidth/2 && Window.getInstance().mousePoint.x < x+Window.gameWidth/2+width) {
-            if(Window.getInstance().mousePoint.y > y+Window.gameHeight/2 && Window.getInstance().mousePoint.y < y+Window.gameHeight/2+height) {
-                if(!hoverSounded) {
-                    hoverSounded = true;
-                    int random = (int)Math.round(Math.random());
-                    if(random == 0) {
-                        hoverSound1.play();
-                    } else {
-                        hoverSound2.play();
-                    }
-                }
-
-                if(MouseHandler.isMouseClicked(MouseButtons.LMB)) {
-                    if(!clickSounded) {
-                        clickSounded = true;
+        if(!disabled) {
+            hover = true;
+            if(Window.getInstance().mousePoint.x > x+Window.gameWidth/2 && Window.getInstance().mousePoint.x < x+Window.gameWidth/2+width) {
+                if(Window.getInstance().mousePoint.y > y+Window.gameHeight/2 && Window.getInstance().mousePoint.y < y+Window.gameHeight/2+height) {
+                    if(!hoverSounded) {
+                        hoverSounded = true;
                         int random = (int)Math.round(Math.random());
-                        if(random == 1) {
-                            clickSound1.play();
+                        if(random == 0) {
+                            hoverSound1.play();
                         } else {
-                            clickSound2.play();
+                            hoverSound2.play();
                         }
                     }
-                    effect.activate();
-                    MouseHandler.forceMouseClick(MouseButtons.LMB, false);
+
+                    if(MouseHandler.isMouseClicked(MouseButtons.LMB)) {
+                        if(!clickSounded) {
+                            clickSounded = true;
+                            int random = (int)Math.round(Math.random());
+                            if(random == 1) {
+                                clickSound1.play();
+                            } else {
+                                clickSound2.play();
+                            }
+                        }
+                        effect.activate();
+                        MouseHandler.forceMouseClick(MouseButtons.LMB, false);
+                    } else {
+                        clickSounded = false;
+                    }
                 } else {
-                    clickSounded = false;
+                    hover = false;
+                    hoverSounded = false;
                 }
             } else {
                 hover = false;
                 hoverSounded = false;
             }
-        } else {
-            hover = false;
-            hoverSounded = false;
         }
     }
 

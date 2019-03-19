@@ -21,7 +21,7 @@ public class Menu extends Tab {
         width = starPortOS.width/5;
         height = starPortOS.height;
 
-        starPortOS.currentTab = TabType.info;
+        starPortOS.currentTab = TabType.mission;
 
         int buttonY = y+((height/5)*2)-(height/35);
         infoButton = new Button(x+20, buttonY, width-40, height/8, "Info", ()-> starPortOS.currentTab = TabType.info);

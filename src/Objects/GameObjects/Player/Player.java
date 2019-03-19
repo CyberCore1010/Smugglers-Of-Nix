@@ -46,6 +46,7 @@ public class Player extends GameObject implements Physics{
     public Enemy targetedEnemy;
 
     private boolean dead = false;
+    private boolean displayShip = true;
 
     @SuppressWarnings("FieldCanBeLocal")
     private double mass = 200;
@@ -447,10 +448,10 @@ public class Player extends GameObject implements Physics{
 
     private void deathSequence() {
         Game.getInstance().universe.systems.get(getCurrentLocation()).addEntity(new Explosion((int)midPos.x, (int)midPos.y, (int)width/2, false, getCurrentLocation()));
-        Player player = this;
 
         Timer start = new Timer();
         Timer end = new Timer();
+        Timer restart = new Timer();
         TimerTask startTask = new TimerTask() {
             @Override
             public void run() {
@@ -462,13 +463,21 @@ public class Player extends GameObject implements Physics{
             @Override
             public void run() {
                 Game.getInstance().universe.systems.get(getCurrentLocation()).addEntity(new Explosion((int)midPos.x, (int)midPos.y, (int)width, true, getCurrentLocation()));
-                Game.getInstance().universe.systems.get(getCurrentLocation()).removeEntity(player);
+                displayShip = false;
+                Game.getInstance().rebuildHandler();
                 start.cancel();
             }
         };
-
+        TimerTask restartTask = new TimerTask() {
+            @Override
+            public void run() {
+                Game.getInstance().restart = true;
+            }
+        };
         start.scheduleAtFixedRate(startTask, 0, 100);
-        end.schedule(endTask, (int)((Math.random() * 501) + 1000));
+        int randomTime = (int)((Math.random() * 501) + 1000);
+        end.schedule(endTask, randomTime);
+        restart.schedule(restartTask, randomTime+2000);
     }
 
     private void dockingManeuver() {
@@ -515,7 +524,7 @@ public class Player extends GameObject implements Physics{
 
     @Override
     public void render(Graphics2D g2d) {
-        if(!docked) {
+        if(!docked && displayShip) {
             Drawable drawable = (g) -> {
                 if(jumping) {
                     g.setPaint(new TexturePaint(jump, new Rectangle2D.Double(-position.x*5, -position.y*5, Init.Window.gameWidth*2, Init.Window.gameHeight*2)));
@@ -542,7 +551,7 @@ public class Player extends GameObject implements Physics{
             renderToCamera(drawable, g2d, Game.getInstance().cameraMap.get(CameraID.game));
         }
 
-        hud.render(g2d);
+        if(!dead) hud.render(g2d);
     }
 
     @Override

@@ -2,14 +2,11 @@ package Init;
 
 import Objects.GameObjects.Background;
 import Objects.GameObjects.GameObject;
-import Objects.GameObjects.NPC.Enemy.Enemy;
+import Objects.GameObjects.ObjectID;
 import Objects.GameObjects.Player.Player;
-import Objects.GameWorld.SystemID;
+import Objects.GameObjects.Station;
 import Objects.GameWorld.Universe;
-import Objects.Utility.MusicHandler;
-import Objects.Utility.ObjectList;
-import Objects.Utility.ObjectMap;
-import Objects.Utility.SFXPlayer;
+import Objects.Utility.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +19,7 @@ public class Game extends JComponent {
 
     public Window window;
     private static Game game;
+    public boolean restart = false;
 
     public Universe universe;
     public Player player;
@@ -45,6 +43,33 @@ public class Game extends JComponent {
 
         thread = new Thread(this::start);
         thread.start();
+    }
+
+    private void constructNewGame() {
+        for(Objects.GameWorld.System system: universe.systems.values()) {
+            for(GameObject object : system.entities) {
+                if(object.id != ObjectID.station) {
+                    system.entities.remove(object);
+                }
+            }
+        }
+        Station station = null;
+        for(GameObject object : handler) {
+            if(object.id == ObjectID.station) {
+                station = (Station)object;
+            }
+        }
+        assert station != null;
+        player = new Player((int)station.midPos.x-((Window.gameWidth/20)/2)-1, (int)station.midPos.y-((Window.gameWidth/20)/2)-1, Window.gameWidth/20, Window.gameWidth/20);
+
+        handler.clear();
+        handler.add(new Background(player));
+        handler.addAll(universe.systems.get(player.getCurrentLocation()).entities);
+        handler.add(player);
+        KeyHandler.forceKey(Keys.home, true);
+        player.update();
+        KeyHandler.forceKey(Keys.home, false);
+        restart = false;
     }
 
     public static Game getInstance() {
@@ -82,14 +107,19 @@ public class Game extends JComponent {
     }
 
     public void rebuildHandler() {
-        ObjectList<GameObject> temp = new ObjectList<>();
-        temp.add(handler.get(0));
-        temp.addAll(universe.systems.get(player.getCurrentLocation()).entities);
-        temp.add(player);
-        handler = temp;
+        if(!handler.isEmpty()) {
+            ObjectList<GameObject> temp = new ObjectList<>();
+            temp.add(handler.get(0));
+            temp.addAll(universe.systems.get(player.getCurrentLocation()).entities);
+            temp.add(player);
+            handler = temp;
+        }
     }
 
     private void update() {
+        if(restart) {
+            constructNewGame();
+        }
         for(GameObject object : handler) {
             object.update();
         }
@@ -107,17 +137,19 @@ public class Game extends JComponent {
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
         Graphics2D g2d = (Graphics2D) g;
 
-        ////////DRAWING AREA////////
+        if(!restart) {
+            super.paintComponent(g);
+            ////////DRAWING AREA////////
 
-        for(GameObject object : handler) {
-            object.render(g2d);
+            for(GameObject object : handler) {
+                object.render(g2d);
+            }
+
+            ////////MENU DRAWING////////
         }
 
-        ////////MENU DRAWING////////
         g2d.dispose();
         g.dispose();
     }
